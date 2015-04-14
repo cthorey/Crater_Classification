@@ -27,17 +27,20 @@ def _unload_pickle(input_file):
             
 ##############################
 # Platform
-
-if _platform == "linux" or _platform == "linux2":
-    Root = '/gpfs/users/thorey/FFC/'
-elif _platform == "darwin":
-    Root = '/Users/thorey/Documents/These/Projet/FFC/'
-
-Path_lola = Root+'Classification/PDS_FILE/Lola/' # Path carte LOla
-Path_grail = Root+'Classification/PDS_FILE/Grail/' 
-Output = Root+'Classification/'
+platform = 'clavius'
     
+if _platform == "linux" or _platform == "linux2":
+    Root = '/gpfs/users/thorey/FFC/Classification'
+elif _platform == "darwin":
+    if platform == 'clavius':
+        Root = '/Users/clement/Classification/'
+    else:
+        Root = '/Users/thorey/Documents/These/Projet/FFC/Classification/'
 
+Path_lola = Root+'PDS_FILE/Lola/' # Path carte LOla
+Path_grail = Root+'PDS_FILE/Grail/' 
+Output = Root+'Data/'
+    
 ###################
 # Carte disponible
 
@@ -104,7 +107,7 @@ for MapLola in MapLolas:
             data.append(array)
         compt+=1
 
-with open(Output+'LOLA_GRAIL_Dataset', 'wb') as fi:
+with open(Output+'LOLA'+img+'_GRAIL_Dataset', 'wb') as fi:
     pickle.dump(data, fi, pickle.HIGHEST_PROTOCOL)
 
 
