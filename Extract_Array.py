@@ -6,7 +6,6 @@ import pickle
 import pandas as pd
 import matplotlib.pylab as plt
 from mpl_toolkits.basemap import Basemap
-import window
 import sys
 
 class BinaryLolaTable(object):
