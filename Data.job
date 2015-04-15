@@ -1,0 +1,12 @@
+#!/bin/bash
+
+#SBATCH -J Pix_512
+#SBATCH --partition data
+
+echo "Running on: $SLURM_NODELIST"
+cd /gpfs/users/thorey/Classification/Script/
+module purge
+module load slurm
+module load python/gcc/2.7.3_ext
+
+python //gpfs/users/thorey/Classification/Script/Extract_Data.py
