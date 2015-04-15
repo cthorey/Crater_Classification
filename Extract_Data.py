@@ -23,7 +23,7 @@ import datetime
 ##############################
 # Platform
 platform = 'clavius'
-pix = '512'
+pix = '64'
     
 if _platform == "linux" or _platform == "linux2":
     Root = '/gpfs/users/thorey/Classification/'
@@ -229,7 +229,7 @@ MapGrails = Carte_Grail(Path_grail)
 # Source = Root+'Data/CRATER_MOON_DATA'
 Source = Root +'Data/'
 df = Construct_DataFrame(Source)
-df = df[df.Name.isin(['Taruntius','Vitello'])]
+# df = df[df.Name.isin(['Taruntius','Vitello'])]
 
 # Compteur
 compteur_init = len(df)
@@ -248,11 +248,10 @@ for carte_lola in carte_lolas:
     border = MapLola.Boundary()
     dfmap  = df[(df.Long>border[0]) & (df.Long<border[1]) &(df.Lat>border[2]) & (df.Lat<border[3])]
     for i,row in df.iterrows():
-        print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
-        if compteur%10 == 0:
-            tracker = open('tracker.txt','a')
-            tracker.write('Il reste encore %d/%d iterations \n'%(compteur,compteur_init))
-            tracker.close()
+        # print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
+        tracker = open('tracker_'+pix+'.txt','a')
+        tracker.write('Il reste encore %d/%d iterations \n'%(compteur,compteur_init))
+        tracker.close()
 
         Window_Coord = MapLola.Cylindrical_Window(1.3*row.Diameter/2.0,row.Lat,row.Long)
         if (Window_Coord[0]<border[0]) or (Window_Coord[1]>border[1])\
