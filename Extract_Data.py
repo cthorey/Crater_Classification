@@ -159,6 +159,46 @@ def Extract_Array_Grail(MapGrail,row):
     h_ZE = ['GE_'+str(f) for f in range(len(Z_Int))]
     return (h_ZI,h_ZE) , (Z_Int,Z_Ext)
 
+def _Class_Type(x):
+    if np.isnan(x):
+        return 0
+    else:
+        return x
+        
+def Construct_DataFrame(Racine):
+    #On recupere chaque dataset separement
+    F =  pd.read_csv(Racine + 'FFC_Final.txt')
+    C1 = pd.read_csv(Racine + 'LU78287GT.csv' , encoding = 'ascii')
+    C2 = pd.read_csv(Racine + 'Lunar_Impact_Crater_Database_v9Feb2009.csv')
+    # On reformatte le nom des colonnes
+    C2.columns = [''.join(f.split(' ')[1:]) for f in C2.columns]
+    # On reformatte les nom pour qu il apparaisse
+    C1['Name'] = [''.join(f.split('r:')[0].split(' ')) for f in map(str,C1.name.tolist())]
+    C2['Name'] = [''.join(f.split(' ')) for f in C2.Name]
+    # On met les nom en index
+    C2.index = C2.Name
+    F.index = F.Name
+    # ON rassemble
+    df = C1[['x','y','D[km]','Name']]
+    df.columns = ['Long','Lat','Diameter','Name']
+    # join FFC dataset
+    F['Type'] = 1
+    col_join = ['Class','Type']
+    df = df.join(F[col_join] , on ='Name')
+    # On ajoute les FFC qui etaient pas ds le dataset initiales
+    df = df.append(F[~F.Name.isin(df.Name)][df.columns])
+    # join C2 dataset
+    col_join =  ['Age']
+    df = df.join(C2[col_join] , on = 'Name')
+    df.Class = df.Class.map(_Class_Type)
+    df.Type = df.Type.map(_Class_Type)
+    Ages = [f for f in map(str,list(set(df.Age.tolist()))) if f != 'nan']
+    dict_ages = dict(zip(Ages,range(len(Ages))))
+    dict_ages['nan'] = '19'
+    df.Age = df.Age.map(lambda x:dict_ages[str(x)])
+
+    return df
+    
 def Dataframe(Source):
     df =  _unload_pickle(Source)
     df.index = np.arange( len( df ) )
@@ -187,8 +227,9 @@ MapLolas = Carte_Lola(Path_lola,pix)
 MapGrails = Carte_Grail(Path_grail)
 
 # on recupere le dataframe avec tous les craters
-Source = Root+'Data/CRATER_MOON_DATA'
-df = Dataframe(Source)
+# Source = Root+'Data/CRATER_MOON_DATA'
+Source = Root +'Data/'
+df = Construct_DataFrame(Source)
 df = df[df.Name.isin(['Taruntius','Vitello'])]
 
 # Compteur
