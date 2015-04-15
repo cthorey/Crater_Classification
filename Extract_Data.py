@@ -23,7 +23,7 @@ import datetime
 ##############################
 # Platform
 platform = 'clavius'
-pix = '64'
+pix = '4'
     
 if _platform == "linux" or _platform == "linux2":
     Root = '/gpfs/users/thorey/Classification/'
@@ -196,6 +196,8 @@ def Construct_DataFrame(Racine):
     dict_ages['nan'] = '19'
     df.Age = df.Age.map(lambda x:dict_ages[str(x)])
 
+    df.index = np.arange( len( df ) )
+    df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
     return df
     
 def Dataframe(Source):
@@ -248,7 +250,7 @@ for carte_lola in carte_lolas:
     border = MapLola.Boundary()
     dfmap  = df[(df.Long>border[0]) & (df.Long<border[1]) &(df.Lat>border[2]) & (df.Lat<border[3])]
     for i,row in df.iterrows():
-        # print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
+        print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
         tracker = open('tracker_'+pix+'.txt','a')
         tracker.write('Il reste encore %d/%d iterations \n'%(compteur,compteur_init))
         tracker.close()

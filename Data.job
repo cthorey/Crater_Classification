@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH -J Pix_512
+#SBATCH -J Pix_4
 #SBATCH --partition data
 
 echo "Running on: $SLURM_NODELIST"
