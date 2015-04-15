@@ -148,7 +148,9 @@ class BinaryLolaTable(object):
         X,Y = m(X,Y)
         plt.pcolormesh(X,Y,self.Z)
 
-
+    def Global_Map_Stat(self):
+        return self.Z.min(),self.Z.max()
+        
     def Circular_Mask(self,radius,radius_window,lat0,long0):
         ''' Radius correspond au rayon du cercle inscrit dans la fenetre
         radius window correspond au rayon du cercle inscrit dans la fenetre !'''
