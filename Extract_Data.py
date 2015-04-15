@@ -22,8 +22,8 @@ import datetime
     
 ##############################
 # Platform
-platform = 'laptop'
-pix = '16'
+platform = 'clavius'
+pix = '64'
     
 if _platform == "linux" or _platform == "linux2":
     Root = '/gpfs/users/thorey/Classification/'
@@ -57,8 +57,7 @@ def Carte_Lola(Path_lola,img):
     List_img = [f for f in List_ldem if f.split('_')[1].split('.')[0] == img and f.split('.')[-1] == 'img'] #liste img files
     List_lbl = [f for f in List_ldem if f.split('_')[1].split('.')[0] == img and f.split('.')[-1] == 'lbl'] # liste lbl files
     carte_lola = [Path_lola + f.split('.')[0] for f in List_img]
-    MapLolas = [BinaryLolaTable(f) for f in carte_lola] # List object lola
-    return MapLolas
+    return carte_lola
 
 def Carte_Grail(Path_grail):
     """ Instancie des object BinaryGrailTable
@@ -223,33 +222,36 @@ def update_grail(Feat_field,Feat):
 
 ###################
 # Object MapLola et MapGrail
-MapLolas = Carte_Lola(Path_lola,pix)
+carte_lolas = Carte_Lola(Path_lola,pix)
 MapGrails = Carte_Grail(Path_grail)
 
 # on recupere le dataframe avec tous les craters
 # Source = Root+'Data/CRATER_MOON_DATA'
 Source = Root +'Data/'
 df = Construct_DataFrame(Source)
-df = df[df.Name.isin(['Taruntius','Vitello'])]
+# df = df[df.Name.isin(['Taruntius','Vitello'])]
 
 # Compteur
-compteur_init = len(df)*len(MapLolas)
+compteur_init = len(df)
 compteur =  compteur_init
-tracker = open('tracker.txt','wr+')
-
+tracker = open('tracker_'+pix+'.txt','wr+')
+tracker.write('Resolution de %s pixel par degree\n'%(str(pix)))
+tracker.close()
 # Variable utiles
 data = None
 header = []
 ind_border = []
 
 #Debut boucle
-for MapLola in MapLolas:
+for carte_lola in carte_lolas:
+    MapLola = BinaryLolaTable(carte_lola)
     border = MapLola.Boundary()
     dfmap  = df[(df.Long>border[0]) & (df.Long<border[1]) &(df.Lat>border[2]) & (df.Lat<border[3])]
     for i,row in df.iterrows():
-        print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
-        if compteur%100 == 0:
-            tracker.write('Il reste encore %d/%d iterations \n'%(compteur,compteur_init))
+        # print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
+        tracker = open('tracker_'+pix+'.txt','a')
+        tracker.write('Il reste encore %d/%d iterations \n'%(compteur,compteur_init))
+        tracker.close()
 
         Window_Coord = MapLola.Cylindrical_Window(1.3*row.Diameter/2.0,row.Lat,row.Long)
         if (Window_Coord[0]<border[0]) or (Window_Coord[1]>border[1])\
