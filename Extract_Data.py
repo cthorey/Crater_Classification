@@ -236,18 +236,17 @@ def update_grail(Feat_field,Feat):
 ###################
 # Object MapLola et MapGrail
 carte_lolas = Carte_Lola(Path_lola,pix)
-# MapGrails = Carte_Grail(Path_grail)
-MapGrails = [BinaryGrailTable(Path_grail+'34_12_3220_900_80_misfit_rad')]
-
+MapGrails = Carte_Grail(Path_grail)
+# MapGrails = [BinaryGrailTable(Path_grail+'34_12_3220_900_80_misfit_rad')]
 
 # on recupere le dataframe avec tous les craters
 # Source = Root+'Data/CRATER_MOON_DATA'
 Source = Root +'Data/'
 df = Construct_DataFrame(Source)
 # df = Crater_Data(Source)
-df = df[df.Name.isin(['Taruntius','Vitello','Hermite','Meton','A68'])]
+# df = df[df.Name.isin(['Taruntius','Vitello','Hermite','Meton','A68'])]
 # df = df[df.Name.isin(['Taruntius'])]
-# df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
+df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
 
 # Compteur
 compteur_init = len(df)
@@ -266,9 +265,8 @@ for carte_lola in carte_lolas:
     MapLola = BinaryLolaTable(carte_lola)
     border = MapLola.Boundary()
     dfmap  = df[(df.Long>border[0]) & (df.Long<border[1]) &(df.Lat>border[2]) & (df.Lat<border[3])]
-    for i,row in df.iterrows():
-        print row.Name
-        print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
+    for i,row in dfmap.iterrows():
+        # print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
         tracker = open('tracker_'+pix+'.txt','a')
         tracker.write('Il reste encore %d/%d iterations \n'%(compteur,compteur_init))
         tracker.close()
