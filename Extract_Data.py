@@ -23,7 +23,7 @@ import datetime
 ##############################
 # Platform
 platform = 'clavius'
-pix = '4'
+pix = '256'
     
 if _platform == "linux" or _platform == "linux2":
     Root = '/gpfs/users/thorey/Classification/'
