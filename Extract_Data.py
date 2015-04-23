@@ -22,8 +22,8 @@ import datetime
     
 ##############################
 # Platform
-platform = 'clavius'
-pix = '256'
+platform = 'laptop'
+pix = '16'
     
 if _platform == "linux" or _platform == "linux2":
     Root = '/gpfs/users/thorey/Classification/'
@@ -109,7 +109,7 @@ def Binned_Array_Lola(Z_Int,Z_Ext,Z_Couronne):
     # hauteur des rim par rapport a la preimpact surface
     Rim = Z_Couronne-Z_Ext.mean()
     height_rim,bin_rim = np.histogram(Rim, range = (-500, 2000), bins = 300)
-    height_rim /= float(height_rim.sum())
+    height_rim = height_rim / float(height_rim.sum())
     statistic_rim = Statistic(Rim)
     stat_rim = statistic_rim.values()
 
@@ -120,7 +120,7 @@ def Binned_Array_Lola(Z_Int,Z_Ext,Z_Couronne):
     h_height_rim = ['R_'+str(f) for f in range(len(height_rim))]
 
     header = (h_stat_floor,h_depth_floor,h_stat_rim,h_height_rim)
-    value = (stat_floor,depth_floor,stat_rim,height_rim)
+    value = (np.array(stat_floor,dtype=float),np.array(depth_floor),np.array(stat_rim),np.array(height_rim))
     bins = ({'F':bin_floor,'R':bin_rim})
     
     return header , value , bins
@@ -130,7 +130,7 @@ def Binned_Array_Grail(Z_Int,Z_Ext,min_gravi,max_gravi):
     anomaly_center,bin_center = np.histogram(center,range = (-100,100),bins = 200)
     anomaly_center = anomaly_center / float(anomaly_center.sum())
     statistic_center = Statistic(center)
-    stat_center = statistic_center.values()
+    stat_center = np.array(statistic_center.values(),dtype=float)
     
     field = (MapGrail.name.split('/')[-1]).split('_')[6]
     h_center  = [field+'_GC_'+str(f) for f in range(len(anomaly_center))]
@@ -164,7 +164,18 @@ def _Class_Type(x):
     else:
         return x
         
-def Construct_DataFrame(Racine):
+def Crater_Data(Source):
+    Source = Source+'CRATER_MOON_DATA'
+    df = _unload_pickle(Source)
+    return df
+
+def _Transform_Neg_Long(x):
+    if x>=0:
+        return x
+    else:
+        return 360+x
+    
+def Construct_DataFrame(Racine):            
     #On recupere chaque dataset separement
     F =  pd.read_csv(Racine + 'FFC_Final.txt')
     C1 = pd.read_csv(Racine + 'LU78287GT.csv' , encoding = 'ascii')
@@ -195,9 +206,9 @@ def Construct_DataFrame(Racine):
     dict_ages = dict(zip(Ages,range(len(Ages))))
     dict_ages['nan'] = '19'
     df.Age = df.Age.map(lambda x:dict_ages[str(x)])
-
-    df.index = np.arange( len( df ) )
-    df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
+    
+    df.index = np.arange( len( df ))
+    df.Long = df.Long.map(_Transform_Neg_Long)
     return df
     
 def Dataframe(Source):
@@ -209,7 +220,7 @@ def Dataframe(Source):
 def df_feature(df):
     feature = np.array([row[f] for f in df.columns if f != 'Name'])
     h_feature = [f for f in df.columns if f != 'Name']
-    return h_feature,feature
+    return h_feature , np.array(feature,dtype =float)
 
 def update_grail(Feat_field,Feat):
 
@@ -225,13 +236,18 @@ def update_grail(Feat_field,Feat):
 ###################
 # Object MapLola et MapGrail
 carte_lolas = Carte_Lola(Path_lola,pix)
-MapGrails = Carte_Grail(Path_grail)
+# MapGrails = Carte_Grail(Path_grail)
+MapGrails = [BinaryGrailTable(Path_grail+'34_12_3220_900_80_misfit_rad')]
+
 
 # on recupere le dataframe avec tous les craters
 # Source = Root+'Data/CRATER_MOON_DATA'
 Source = Root +'Data/'
 df = Construct_DataFrame(Source)
-# df = df[df.Name.isin(['Taruntius','Vitello'])]
+# df = Crater_Data(Source)
+df = df[df.Name.isin(['Taruntius','Vitello','Hermite','Meton','A68'])]
+# df = df[df.Name.isin(['Taruntius'])]
+# df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
 
 # Compteur
 compteur_init = len(df)
@@ -240,8 +256,9 @@ tracker = open('tracker_'+pix+'.txt','wr+')
 tracker.write('Resolution de %s pixel par degree\n'%(str(pix)))
 tracker.close()
 # Variable utiles
-data = None
+data = 'Init'
 header = []
+failed = []
 ind_border = []
 
 #Debut boucle
@@ -250,6 +267,7 @@ for carte_lola in carte_lolas:
     border = MapLola.Boundary()
     dfmap  = df[(df.Long>border[0]) & (df.Long<border[1]) &(df.Lat>border[2]) & (df.Lat<border[3])]
     for i,row in df.iterrows():
+        print row.Name
         print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
         tracker = open('tracker_'+pix+'.txt','a')
         tracker.write('Il reste encore %d/%d iterations \n'%(compteur,compteur_init))
@@ -260,29 +278,37 @@ for carte_lola in carte_lolas:
            or (Window_Coord[2]<border[2]) or (Window_Coord[3]>border[3]) or (np.isnan(Window_Coord).sum() !=0 ):
             ind_border.append(i)
         else:
-            h_df_feat , df_feat = df_feature(dfmap)
-            h_Lola , Z = Extract_Array_Lola(MapLola,row)
-            h_feat_lola , feat_lola , bin_lola = Binned_Array_Lola(Z[0],Z[1],Z[2])
-
-            h_feat_grail, feat_grail,bin_grail = (),(),()
-            for MapGrail in MapGrails:
-                min_gravi,max_gravi = MapGrail.Global_Map_Stat()
-                h_grail_field , Z_field = Extract_Array_Grail(MapGrail,row)
-                h_feat_field, feat_field, bin_field = Binned_Array_Grail(Z_field[0],Z_field[1],min_gravi,max_gravi)
-                h_feat_grail , feat_grail , bin_grail = update_grail([h_feat_field, feat_field, bin_field],[h_feat_grail, feat_grail, bin_grail])
-                
+            try:
+                h_df_feat , df_feat = df_feature(dfmap)
+                h_Lola , Z = Extract_Array_Lola(MapLola,row)
+                h_feat_lola , feat_lola , bin_lola = Binned_Array_Lola(Z[0],Z[1],Z[2])
+            
+                h_feat_grail, feat_grail,bin_grail = (),(),()
+                for MapGrail in MapGrails:
+                    min_gravi,max_gravi = MapGrail.Global_Map_Stat()
+                    h_grail_field , Z_field = Extract_Array_Grail(MapGrail,row)
+                    h_feat_field, feat_field, bin_field = Binned_Array_Grail(Z_field[0],Z_field[1],min_gravi,max_gravi)
+                    h_feat_grail , feat_grail , bin_grail = update_grail([h_feat_field, feat_field, bin_field],[h_feat_grail, feat_grail, bin_grail])
                 
             # On range tout dans un gros tableau
-            if data == None:
-                data = np.hstack(np.hstack((df_feat,feat_lola,np.hstack(feat_grail))))
-            else:
-                data = np.vstack((data,np.hstack(np.hstack((df_feat,feat_lola,np.hstack(feat_grail))))))
+                if data == 'Init':
+                    data = np.hstack(np.hstack((df_feat,feat_lola,np.hstack(feat_grail))))
+                else:
+                    data = np.vstack((data,np.hstack(np.hstack((df_feat,feat_lola,np.hstack(feat_grail))))))
+            except:
+                failed.append(i)
+                
         compteur-=1
 
 #Pickle object
 header = np.hstack(np.hstack((h_df_feat,h_feat_lola,np.hstack(h_feat_grail))))
 pickle_object = {'header': header,
-                 'data' : data,
+                 'failed_border' : ind_border,
+                 'failed_Error' : failed,
+                 'data' : np.delete(data , [3,4,5] , axis =1),
+                 'label_Class' : data[:,3],
+                 'label_Type' : data[:,4],
+                 'label_Age' : data[:,5],
                  'bin_lola': bin_lola,
                  'bin_grail': bin_grail}
 with open(Output+'LOLA'+pix+'_GRAIL_Dataset', 'wb') as fi:

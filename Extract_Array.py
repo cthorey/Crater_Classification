@@ -31,8 +31,6 @@ class BinaryLolaTable(object):
         X = self._Load_X()
         Y = self._Load_Y()
         Z = self._Load_Z()
-        Z = np.hstack((Z[:,int(Z.shape[1]/2):],Z[:,:int(Z.shape[1]/2)]))
-        X = X-180.0
         return X,Y,Z
         
     def _Load_X(self):
@@ -66,8 +64,8 @@ class BinaryLolaTable(object):
     def Boundary(self):
         self._Load_Info_LBL()
         print 
-        return (int(self.WESTERNMOST_LONGITUDE)-180,
-                int(self.EASTERNMOST_LONGITUDE)-180,
+        return (int(self.WESTERNMOST_LONGITUDE),
+                int(self.EASTERNMOST_LONGITUDE),
                 int(self.MINIMUM_LATITUDE),
                 int(self.MAXIMUM_LATITUDE))
 
@@ -193,8 +191,6 @@ class BinaryGrailTable(BinaryLolaTable):
         X = self._Load_X()
         Y = self._Load_Y()
         Z = self._Load_Z()
-        Z = np.hstack((Z[:,int(Z.shape[1]/2):],Z[:,:int(Z.shape[1]/2)]))
-        X = X-180.0
         return X,Y,Z
         
     def _Load_X(self):
@@ -226,7 +222,7 @@ class BinaryGrailTable(BinaryLolaTable):
         plt.pcolormesh(X,Y,self.Z)
 
     
-class Crater(BinaryLolaTable):
+class Crater(BinaryGrailTable):
             
     def __init__(self,Name,which_lola):
         super(Crater,self).__init__(which_lola)
@@ -251,6 +247,7 @@ class Crater(BinaryLolaTable):
 
     def Plot_Mesh(self):
         X,Y,Z = self.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        print X
         plt.pcolormesh(X,Y,Z)
         plt.scatter(self.Long,self.Lat)
 
@@ -266,6 +263,7 @@ class Crater(BinaryLolaTable):
 
     def Deg(self,radius):
         return radius*360/(2*np.pi*1734.4)
+
         
         
 
