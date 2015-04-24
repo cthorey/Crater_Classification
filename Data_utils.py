@@ -1,5 +1,8 @@
 import cPickle as pickle
 import numpy as np
+import seaborn as sns
+import matplotlib.pylab as plt
+
 
 class Data(object):
     ''' Class qui handles les objects pickled avec extract data'''
@@ -26,3 +29,12 @@ class Data(object):
                 data_pickle = pd.read_pickle(self.input_file)
         return data_pickle
                     
+
+    def Plot_histogram(self,col):
+        ''' Plot a histogram with all the data '''
+        c = sns.color_palette('deep',n_colors = getattr(self,col).shape[0])
+        for i in range(getattr(self,col).shape[0]):
+            plt.scatter(getattr(self,'h_'+col)[:-1],getattr(self,col)[i,:],color = c[i])
+            
+
+        
