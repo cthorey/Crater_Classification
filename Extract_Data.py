@@ -291,8 +291,8 @@ df = Construct_DataFrame(Source)
 # df = df[df.Name.isin(['Taruntius','Vitello','Hermite','Meton','A68'])]
 # # df = df[df.Name.isin(['Taruntius','Vitello'])]
 df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
-df = df.reindex(np.random.permutation(df.index))
-df = df[:10]
+# df = df.reindex(np.random.permutation(df.index))
+# df = df[:10]
 
 # Compteur
 compteur_init = len(df)
@@ -319,7 +319,7 @@ for carte_lola in carte_lolas:
     border = MapLola.Boundary()
     dfmap  = df[(df.Long>border[0]) & (df.Long<border[1]) &(df.Lat>border[2]) & (df.Lat<border[3])]
     for i,row in dfmap.iterrows():
-        print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
+        # print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
         tracker = open('tracker_'+pix+'.txt','a')
         tracker.write('Il reste encore %d/%d iterations \n'%(compteur,compteur_init))
         tracker.close()
@@ -329,23 +329,23 @@ for carte_lola in carte_lolas:
            or (Window_Coord[2]<border[2]) or (Window_Coord[3]>border[3]) or (np.isnan(Window_Coord).sum() !=0 ):
             ind_border.append(i)
         else:
-            # try:
-            feat_df_tmp = df_feature(dfmap,feat_df_tmp)
-            h_Lola , Z = Extract_Array_Lola(MapLola,row)
-            h_feat_lola , feat_lola_tmp  = Binned_Array_Lola(Z[0],Z[1],Z[2],h_feat_lola,feat_lola_tmp)
-            
-            for MapGrail in MapGrails:
-                key = MapGrail.composante
-                min_gravi,max_gravi = MapGrail.Global_Map_Stat()
-                h_grail_field , Z_field = Extract_Array_Grail(MapGrail,row)
-                h_feat_grail, feat_grail_tmp = Binned_Array_Grail(Z_field[0],Z_field[1],min_gravi,max_gravi,feat_grail_tmp,h_feat_grail,key)
+            try:
+                feat_df_tmp = df_feature(dfmap,feat_df_tmp)
+                h_Lola , Z = Extract_Array_Lola(MapLola,row)
+                h_feat_lola , feat_lola_tmp  = Binned_Array_Lola(Z[0],Z[1],Z[2],h_feat_lola,feat_lola_tmp)
+                
+                for MapGrail in MapGrails:
+                    key = MapGrail.composante
+                    min_gravi,max_gravi = MapGrail.Global_Map_Stat()
+                    h_grail_field , Z_field = Extract_Array_Grail(MapGrail,row)
+                    h_feat_grail, feat_grail_tmp = Binned_Array_Grail(Z_field[0],Z_field[1],min_gravi,max_gravi,feat_grail_tmp,h_feat_grail,key)
 
-            # Mise a jour des dict
-            feat_df = feat_update(feat_df,feat_df_tmp)
-            feat_lola = feat_update(feat_lola,feat_lola_tmp)
-            feat_grail = feat_update(feat_grail,feat_grail_tmp)
-            # except:
-            #     failed.append(i)
+                    # Mise a jour des dict
+                feat_df = feat_update(feat_df,feat_df_tmp)
+                feat_lola = feat_update(feat_lola,feat_lola_tmp)
+                feat_grail = feat_update(feat_grail,feat_grail_tmp)
+            except:
+                failed.append(i)
                 
         compteur-=1
 
