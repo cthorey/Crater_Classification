@@ -23,7 +23,7 @@ import datetime
 ##############################
 # Platform
 platform = 'laptop'
-pix = '4'
+pix = '16'
     
 if _platform == "linux" or _platform == "linux2":
     Root = '/gpfs/users/thorey/Classification/'
@@ -101,23 +101,21 @@ def Binned_Array_Lola(Z_Int,Z_Ext,Z_Couronne,h_feat_lola,feat_lola):
 
     # Profondeur par rapport a la preimpact surace
     Floor = Z_Ext.mean()-Z_Int
-    depth_floor,bin_floor = np.histogram(Floor , range = (0, 3000), bins = 300)
-    depth_floor = depth_floor / float(depth_floor.sum())    
+    depth_floor,bin_floor = np.histogram(Floor , np.arange(0,4000,10))
     statistic_floor = Statistic(Floor)
     stat_floor = statistic_floor.values()
                 
     # hauteur des rim par rapport a la preimpact surface
     Rim = Z_Couronne-Z_Ext.mean()
-    height_rim,bin_rim = np.histogram(Rim, range = (-500, 2000), bins = 300)
-    height_rim = height_rim / float(height_rim.sum())
+    height_rim,bin_rim = np.histogram(Rim, np.arange(0,2000,10))
     statistic_rim = Statistic(Rim)
     stat_rim = statistic_rim.values()
 
     # On remplie le header 
     h_stat_floor = ['F'+f for f in statistic_floor.keys()]
-    h_depth_floor = ['DF_'+str(f) for f in range(len(depth_floor))]
+    h_depth_floor = ['DF_'+str(f) for f in np.arange(len(depth_floor))]
     h_stat_rim = ['R'+f for f in statistic_rim.keys()]
-    h_height_rim = ['R_'+str(f) for f in range(len(height_rim))]
+    h_height_rim = ['R_'+str(f) for f in np.arange(len(height_rim))]
 
     # header = (h_stat_floor,h_depth_floor,h_stat_rim,h_height_rim)
     # value = (np.array(stat_floor,dtype=float),np.array(depth_floor),np.array(stat_rim),np.array(height_rim))
@@ -125,23 +123,21 @@ def Binned_Array_Lola(Z_Int,Z_Ext,Z_Couronne,h_feat_lola,feat_lola):
     # On met a jour les dictionnaires
     if feat_lola['stat_floor'] == None:
         h_feat_lola = {'h_stat_floor':h_stat_floor,
-                       'h_depth_floor':h_depth_floor,
+                       'h_depth_floor':bin_floor,
                        'h_stat_rim':h_stat_rim,
-                       'h_height_rim': h_height_rim}
+                       'h_height_rim': bin_rim}
 
     feat_lola['stat_floor'] = np.array(stat_floor,dtype=float)
     feat_lola['depth_floor'] = np.array(depth_floor,dtype=float)
     feat_lola['stat_rim'] = np.array(stat_rim,dtype=float)
     feat_lola['height_rim'] = np.array(height_rim,dtype=float)
     
-    bins = ({'F':bin_floor,'R':bin_rim})
     
-    return h_feat_lola , feat_lola , bins
+    return h_feat_lola , feat_lola 
 
 def Binned_Array_Grail(Z_Int,Z_Ext,min_gravi,max_gravi,feat_grail,h_feat_grail,key):
     center = Z_Int-Z_Ext.mean()
-    anomaly_center,bin_center = np.histogram(center,range = (-100,100),bins = 200)
-    anomaly_center = anomaly_center / float(anomaly_center.sum())
+    anomaly_center,bin_center = np.histogram(center,np.arange(-100,100,2.5))
     statistic_center = Statistic(center)
     stat_center = np.array(statistic_center.values(),dtype=float)
     
@@ -150,13 +146,12 @@ def Binned_Array_Grail(Z_Int,Z_Ext,min_gravi,max_gravi,feat_grail,h_feat_grail,k
     h_stat_center = [field+'_'+f for f in statistic_center.keys()]
 
     h_feat_grail['h_'+key+'_stat_center'] = h_stat_center
-    h_feat_grail['h_'+key+'_anomaly_center'] = h_center
+    h_feat_grail['h_'+key+'_anomaly_center'] = bin_center
     feat_grail[key+'_stat_center'] = np.array(stat_center)
     feat_grail[key+'_anomaly_center'] = np.array(anomaly_center)
     
-    bins = ({field : bin_center})
     
-    return h_feat_grail , feat_grail , bins
+    return h_feat_grail , feat_grail 
         
 def Extract_Array_Grail(MapGrail,row):
 
@@ -306,11 +301,9 @@ tracker = open('tracker_'+pix+'.txt','wr+')
 tracker.write('Resolution de %s pixel par degree\n'%(str(pix)))
 tracker.close()
 # Variable utiles
-data = 'Init'
-header = []
+
 failed = []
 ind_border = []
-data_tmp = {}
 
 # Initialisation dict et list
 feat_df_tmp = Initialize_feat_df(df)
@@ -336,23 +329,23 @@ for carte_lola in carte_lolas:
            or (Window_Coord[2]<border[2]) or (Window_Coord[3]>border[3]) or (np.isnan(Window_Coord).sum() !=0 ):
             ind_border.append(i)
         else:
-            try:
-                feat_df_tmp = df_feature(dfmap,feat_df_tmp)
-                h_Lola , Z = Extract_Array_Lola(MapLola,row)
-                h_feat_lola , feat_lola_tmp , bin_lola = Binned_Array_Lola(Z[0],Z[1],Z[2],h_feat_lola,feat_lola_tmp)
+            # try:
+            feat_df_tmp = df_feature(dfmap,feat_df_tmp)
+            h_Lola , Z = Extract_Array_Lola(MapLola,row)
+            h_feat_lola , feat_lola_tmp  = Binned_Array_Lola(Z[0],Z[1],Z[2],h_feat_lola,feat_lola_tmp)
             
-                for MapGrail in MapGrails:
-                    key = MapGrail.composante
-                    min_gravi,max_gravi = MapGrail.Global_Map_Stat()
-                    h_grail_field , Z_field = Extract_Array_Grail(MapGrail,row)
-                    h_feat_grail, feat_grail_tmp, bin_grail = Binned_Array_Grail(Z_field[0],Z_field[1],min_gravi,max_gravi,feat_grail_tmp,h_feat_grail,key)
+            for MapGrail in MapGrails:
+                key = MapGrail.composante
+                min_gravi,max_gravi = MapGrail.Global_Map_Stat()
+                h_grail_field , Z_field = Extract_Array_Grail(MapGrail,row)
+                h_feat_grail, feat_grail_tmp = Binned_Array_Grail(Z_field[0],Z_field[1],min_gravi,max_gravi,feat_grail_tmp,h_feat_grail,key)
 
-                # Mise a jour des dict
-                feat_df = feat_update(feat_df,feat_df_tmp)
-                feat_lola = feat_update(feat_lola,feat_lola_tmp)
-                feat_grail = feat_update(feat_grail,feat_grail_tmp)
-            except:
-                failed.append(i)
+            # Mise a jour des dict
+            feat_df = feat_update(feat_df,feat_df_tmp)
+            feat_lola = feat_update(feat_lola,feat_lola_tmp)
+            feat_grail = feat_update(feat_grail,feat_grail_tmp)
+            # except:
+            #     failed.append(i)
                 
         compteur-=1
 
@@ -362,10 +355,8 @@ pickle_object = {'failed_border' : ind_border,
                  'feat_df' : feat_df,
                  'feat_lola' : feat_lola,
                  'h_feat_lola' : h_feat_lola,
-                 'bin_lola': bin_lola,
                  'feat_grail' : feat_grail,
-                 'h_feat_grail' : h_feat_grail,
-                 'bin_grail': bin_grail}
+                 'h_feat_grail' : h_feat_grail}
 with open(Output+'LOLA'+pix+'_GRAIL_Dataset', 'wb') as fi:
     pickle.dump(pickle_object, fi, pickle.HIGHEST_PROTOCOL)
 
