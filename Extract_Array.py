@@ -185,6 +185,7 @@ class BinaryGrailTable(BinaryLolaTable):
         self.name = which_grad
         self.img = which_grad+'.dat'
         self.X,self.Y,self.Z = self.Load_XYZ()
+        self.composante = self.img.split('_')[-1].split('.')[0]
         
     def Load_XYZ(self):
         ''' Return une carte avec -180<lon<180 et -90<lat<90'''
