@@ -23,7 +23,7 @@ import datetime
 ##############################
 # Platform
 platform = 'laptop'
-pix = '16'
+pix = '4'
     
 if _platform == "linux" or _platform == "linux2":
     Root = '/gpfs/users/thorey/Classification/'
@@ -124,10 +124,10 @@ def Binned_Array_Lola(Z_Int,Z_Ext,Z_Couronne,h_feat_lola,feat_lola):
 
     # On met a jour les dictionnaires
     if feat_lola['stat_floor'] == None:
-        h_feat_lola = {'stat_floor':h_stat_floor,
-                       'depth_floor':h_depth_floor,
-                       'stat_rim':h_stat_rim,
-                       'height_rim': h_height_rim}
+        h_feat_lola = {'h_stat_floor':h_stat_floor,
+                       'h_depth_floor':h_depth_floor,
+                       'h_stat_rim':h_stat_rim,
+                       'h_height_rim': h_height_rim}
 
     feat_lola['stat_floor'] = np.array(stat_floor,dtype=float)
     feat_lola['depth_floor'] = np.array(depth_floor,dtype=float)
@@ -149,8 +149,8 @@ def Binned_Array_Grail(Z_Int,Z_Ext,min_gravi,max_gravi,feat_grail,h_feat_grail,k
     h_center  = [field+'_GC_'+str(f) for f in range(len(anomaly_center))]
     h_stat_center = [field+'_'+f for f in statistic_center.keys()]
 
-    h_feat_grail[key+'_stat_center'] = h_stat_center
-    h_feat_grail[key+'_anomaly_center'] = h_center
+    h_feat_grail['h_'+key+'_stat_center'] = h_stat_center
+    h_feat_grail['h_'+key+'_anomaly_center'] = h_center
     feat_grail[key+'_stat_center'] = np.array(stat_center)
     feat_grail[key+'_anomaly_center'] = np.array(anomaly_center)
     
@@ -296,6 +296,8 @@ df = Construct_DataFrame(Source)
 # df = df[df.Name.isin(['Taruntius','Vitello','Hermite','Meton','A68'])]
 # # df = df[df.Name.isin(['Taruntius','Vitello'])]
 df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
+df = df.reindex(np.random.permutation(df.index))
+df = df[:10]
 
 # Compteur
 compteur_init = len(df)
@@ -324,7 +326,7 @@ for carte_lola in carte_lolas:
     border = MapLola.Boundary()
     dfmap  = df[(df.Long>border[0]) & (df.Long<border[1]) &(df.Lat>border[2]) & (df.Lat<border[3])]
     for i,row in dfmap.iterrows():
-        # print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
+        print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
         tracker = open('tracker_'+pix+'.txt','a')
         tracker.write('Il reste encore %d/%d iterations \n'%(compteur,compteur_init))
         tracker.close()
