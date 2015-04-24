@@ -97,7 +97,7 @@ def Extract_Array_Lola(MapLola,row):
     
     return (h_ZI,h_ZE,h_ZR),(Z_Int,Z_Ext,Z_Rim)
 
-def Binned_Array_Lola(Z_Int,Z_Ext,Z_Couronne):
+def Binned_Array_Lola(Z_Int,Z_Ext,Z_Couronne,h_feat_lola,feat_lola):
 
     # Profondeur par rapport a la preimpact surace
     Floor = Z_Ext.mean()-Z_Int
@@ -119,13 +119,26 @@ def Binned_Array_Lola(Z_Int,Z_Ext,Z_Couronne):
     h_stat_rim = ['R'+f for f in statistic_rim.keys()]
     h_height_rim = ['R_'+str(f) for f in range(len(height_rim))]
 
-    header = (h_stat_floor,h_depth_floor,h_stat_rim,h_height_rim)
-    value = (np.array(stat_floor,dtype=float),np.array(depth_floor),np.array(stat_rim),np.array(height_rim))
+    # header = (h_stat_floor,h_depth_floor,h_stat_rim,h_height_rim)
+    # value = (np.array(stat_floor,dtype=float),np.array(depth_floor),np.array(stat_rim),np.array(height_rim))
+
+    # On met a jour les dictionnaires
+    if feat_lola['stat_floor'] == None:
+        h_feat_lola = {'stat_floor':h_stat_floor,
+                       'depth_floor':h_depth_floor,
+                       'stat_rim':h_stat_rim,
+                       'height_rim': h_height_rim}
+
+    feat_lola['stat_floor'] = np.array(stat_floor,dtype=float)
+    feat_lola['depth_floor'] = np.array(depth_floor,dtype=float)
+    feat_lola['stat_rim'] = np.array(stat_rim,dtype=float)
+    feat_lola['height_rim'] = np.array(height_rim,dtype=float)
+    
     bins = ({'F':bin_floor,'R':bin_rim})
     
-    return header , value , bins
+    return h_feat_lola , feat_lola , bins
 
-def Binned_Array_Grail(Z_Int,Z_Ext,min_gravi,max_gravi):
+def Binned_Array_Grail(Z_Int,Z_Ext,min_gravi,max_gravi,feat_grail,h_feat_grail,key):
     center = Z_Int-Z_Ext.mean()
     anomaly_center,bin_center = np.histogram(center,range = (-100,100),bins = 200)
     anomaly_center = anomaly_center / float(anomaly_center.sum())
@@ -136,11 +149,14 @@ def Binned_Array_Grail(Z_Int,Z_Ext,min_gravi,max_gravi):
     h_center  = [field+'_GC_'+str(f) for f in range(len(anomaly_center))]
     h_stat_center = [field+'_'+f for f in statistic_center.keys()]
 
-    header = (h_stat_center,h_center)
-    value = (stat_center,anomaly_center)
+    h_feat_grail[key+'_stat_center'] = h_stat_center
+    h_feat_grail[key+'_anomaly_center'] = h_center
+    feat_grail[key+'_stat_center'] = np.array(stat_center)
+    feat_grail[key+'_anomaly_center'] = np.array(anomaly_center)
+    
     bins = ({field : bin_center})
     
-    return header , value , bins
+    return h_feat_grail , feat_grail , bins
         
 def Extract_Array_Grail(MapGrail,row):
 
@@ -217,10 +233,10 @@ def Dataframe(Source):
     df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
     return df
 
-def df_feature(df):
-    feature = np.array([row[f] for f in df.columns if f != 'Name'])
-    h_feature = [f for f in df.columns if f != 'Name']
-    return h_feature , np.array(feature,dtype =float)
+def df_feature(df,feat_df):
+    for key in df.columns:
+        feat_df[key] = row[key]
+    return feat_df
 
 def update_grail(Feat_field,Feat):
 
@@ -229,7 +245,39 @@ def update_grail(Feat_field,Feat):
     Feat[2] += (Feat_field[2],)
         
     return Feat[0],Feat[1],Feat[2]
+
+def Initialize_feat_lola():
+    h_feat_lola = dict.fromkeys(['stat_floor','depth_floor','stat_rim','height_rim'])
+    feat_lola = dict.fromkeys(['stat_floor','depth_floor','stat_rim','height_rim'])
+    return h_feat_lola , feat_lola
+
+def Initialize_feat_df(df):
+    feat_df = dict.fromkeys(df.columns)
+    return feat_df
     
+def Initialize_feat_grail(MapGrails):
+    col = ['stat_center','anomaly_center']
+    feat_grail  = []
+    h_feat_grail = []
+    for MapGrail in MapGrails:
+        feat_grail += [MapGrail.composante+'_'+f for f in col]
+        h_feat_grail += ['h_'+MapGrail.composante+'_'+f for f in col]
+
+    feat_grail = dict.fromkeys(feat_grail)
+    h_feat_grail = dict.fromkeys(h_feat_grail)
+
+    return h_feat_grail, feat_grail
+
+def feat_update(feat,feat_tmp):
+    for key in feat.iterkeys():
+
+        if feat[key] is not None:
+            feat[key] = np.vstack((feat[key],feat_tmp[key]))
+        else:
+            feat[key] = feat_tmp[key]
+        
+    return feat
+            
 ###################
 # PROGRAMME
 
@@ -237,7 +285,8 @@ def update_grail(Feat_field,Feat):
 # Object MapLola et MapGrail
 carte_lolas = Carte_Lola(Path_lola,pix)
 MapGrails = Carte_Grail(Path_grail)
-# MapGrails = [BinaryGrailTable(Path_grail+'34_12_3220_900_80_misfit_rad')]
+# MapGrails = [BinaryGrailTable(Path_grail+'34_12_3220_900_80_misfit_rad'),
+#              BinaryGrailTable(Path_grail+'34_12_3220_900_80_misfit_theta')]
 
 # on recupere le dataframe avec tous les craters
 # Source = Root+'Data/CRATER_MOON_DATA'
@@ -245,7 +294,7 @@ Source = Root +'Data/'
 df = Construct_DataFrame(Source)
 # df = Crater_Data(Source)
 # df = df[df.Name.isin(['Taruntius','Vitello','Hermite','Meton','A68'])]
-# df = df[df.Name.isin(['Taruntius'])]
+# # df = df[df.Name.isin(['Taruntius','Vitello'])]
 df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
 
 # Compteur
@@ -259,6 +308,15 @@ data = 'Init'
 header = []
 failed = []
 ind_border = []
+data_tmp = {}
+
+# Initialisation dict et list
+feat_df_tmp = Initialize_feat_df(df)
+feat_df = Initialize_feat_df(df)
+h_feat_lola_tmp , feat_lola_tmp = Initialize_feat_lola()
+h_feat_lola , feat_lola = Initialize_feat_lola()
+h_feat_grail_tmp , feat_grail_tmp  = Initialize_feat_grail(MapGrails)
+h_feat_grail , feat_grail  = Initialize_feat_grail(MapGrails)
 
 #Debut boucle
 for carte_lola in carte_lolas:
@@ -277,37 +335,34 @@ for carte_lola in carte_lolas:
             ind_border.append(i)
         else:
             try:
-                h_df_feat , df_feat = df_feature(dfmap)
+                feat_df_tmp = df_feature(dfmap,feat_df_tmp)
                 h_Lola , Z = Extract_Array_Lola(MapLola,row)
-                h_feat_lola , feat_lola , bin_lola = Binned_Array_Lola(Z[0],Z[1],Z[2])
+                h_feat_lola , feat_lola_tmp , bin_lola = Binned_Array_Lola(Z[0],Z[1],Z[2],h_feat_lola,feat_lola_tmp)
             
-                h_feat_grail, feat_grail,bin_grail = (),(),()
                 for MapGrail in MapGrails:
+                    key = MapGrail.composante
                     min_gravi,max_gravi = MapGrail.Global_Map_Stat()
                     h_grail_field , Z_field = Extract_Array_Grail(MapGrail,row)
-                    h_feat_field, feat_field, bin_field = Binned_Array_Grail(Z_field[0],Z_field[1],min_gravi,max_gravi)
-                    h_feat_grail , feat_grail , bin_grail = update_grail([h_feat_field, feat_field, bin_field],[h_feat_grail, feat_grail, bin_grail])
-                
-            # On range tout dans un gros tableau
-                if data == 'Init':
-                    data = np.hstack(np.hstack((df_feat,feat_lola,np.hstack(feat_grail))))
-                else:
-                    data = np.vstack((data,np.hstack(np.hstack((df_feat,feat_lola,np.hstack(feat_grail))))))
+                    h_feat_grail, feat_grail_tmp, bin_grail = Binned_Array_Grail(Z_field[0],Z_field[1],min_gravi,max_gravi,feat_grail_tmp,h_feat_grail,key)
+
+                # Mise a jour des dict
+                feat_df = feat_update(feat_df,feat_df_tmp)
+                feat_lola = feat_update(feat_lola,feat_lola_tmp)
+                feat_grail = feat_update(feat_grail,feat_grail_tmp)
             except:
                 failed.append(i)
                 
         compteur-=1
 
-#Pickle object
-header = np.hstack(np.hstack((h_df_feat,h_feat_lola,np.hstack(h_feat_grail))))
-pickle_object = {'header': header,
-                 'failed_border' : ind_border,
+        #Pickle object
+pickle_object = {'failed_border' : ind_border,
                  'failed_Error' : failed,
-                 'data' : np.delete(data , [3,4,5] , axis =1),
-                 'label_Class' : data[:,3],
-                 'label_Type' : data[:,4],
-                 'label_Age' : data[:,5],
+                 'feat_df' : feat_df,
+                 'feat_lola' : feat_lola,
+                 'h_feat_lola' : h_feat_lola,
                  'bin_lola': bin_lola,
+                 'feat_grail' : feat_grail,
+                 'h_feat_grail' : h_feat_grail,
                  'bin_grail': bin_grail}
 with open(Output+'LOLA'+pix+'_GRAIL_Dataset', 'wb') as fi:
     pickle.dump(pickle_object, fi, pickle.HIGHEST_PROTOCOL)
