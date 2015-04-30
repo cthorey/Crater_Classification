@@ -223,9 +223,9 @@ df = Construct_DataFrame(Source)
 # df = Crater_Data(Source)
 # df = df[df.Name.isin(['Taruntius','Vitello','Hermite','Meton','A68'])]
 # df = df[df.Name.isin(['Taruntius','Vitello'])]
-# df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
-# df = df.reindex(np.random.permutation(df.index))
-df = df[:25]
+df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
+df = df.reindex(np.random.permutation(df.index))
+# df = df[:25]
 
 # Compteur
 compteur_init = len(df)
@@ -252,7 +252,7 @@ for carte_lola in carte_lolas:
     border = MapLola.Boundary()
     dfmap  = df[(df.Long>border[0]) & (df.Long<border[1]) &(df.Lat>border[2]) & (df.Lat<border[3])]
     for i,row in dfmap.iterrows():
-        print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
+        # print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
         tracker = open('tracker_'+pix+'.txt','a')
         tracker.write('Il reste encore %d/%d iterations \n'%(compteur,compteur_init))
         tracker.close()
