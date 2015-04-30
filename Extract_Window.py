@@ -23,7 +23,7 @@ import datetime
 ##############################
 # Platform
 platform = 'laptop'
-pix = '4'
+pix = '16'
     
 if _platform == "linux" or _platform == "linux2":
     Root = '/gpfs/users/thorey/Classification/'
@@ -102,7 +102,7 @@ def Extract_Array_Grail(MapGrail,row,grail_tmp,key):
     tmp, Z_Int , tmp = MapGrail.Circular_Mask(0.98*row.Diameter/2.0,0.98*row.Diameter/2.0,row.Lat,row.Long)
     tmp , tmp , Z_Ext = MapGrail.Circular_Mask(1.1*row.Diameter/2.0,1.5*row.Diameter/2.0,row.Lat,row.Long)
 
-    grail_tmp[key+'_ZInt'] = np.arrayZ_Int
+    grail_tmp[key+'_ZInt'] = Z_Int
     grail_tmp[key+'_ZExt'] =Z_Ext
     return grail_tmp
 
@@ -223,8 +223,8 @@ df = Construct_DataFrame(Source)
 # df = Crater_Data(Source)
 # df = df[df.Name.isin(['Taruntius','Vitello','Hermite','Meton','A68'])]
 # df = df[df.Name.isin(['Taruntius','Vitello'])]
-df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
-df = df.reindex(np.random.permutation(df.index))
+# df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
+# df = df.reindex(np.random.permutation(df.index))
 df = df[:25]
 
 # Compteur
