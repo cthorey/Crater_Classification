@@ -2,6 +2,7 @@ import cPickle as pickle
 import numpy as np
 import seaborn as sns
 import matplotlib.pylab as plt
+from sklearn import *
 
 
 class Data(object):
@@ -18,8 +19,7 @@ class Data(object):
             setattr(self,key1,val1)
             if type(val1) == dict:
                 for key2,val2 in val1.iteritems():
-                    setattr(self,key2,val2)                    
-            
+                    setattr(self,key2,val2)
 
     def m_load(self):
         with open(self.input_file, 'rb') as f:
@@ -30,11 +30,36 @@ class Data(object):
         return data_pickle
                     
 
-    def Plot_histogram(self,col):
-        ''' Plot a histogram with all the data '''
+    def Plot_histogram(self,col,i):
+        ''' Plot a histogram with all the data
+        input :
+        col : Nom de l'attribut a plotter
+        i : index du crater a plotter
+        output:
+        belle figure'''
         c = sns.color_palette('deep',n_colors = getattr(self,col).shape[0])
-        for i in range(getattr(self,col).shape[0]):
-            plt.scatter(getattr(self,'h_'+col)[:-1],getattr(self,col)[i,:],color = c[i])
+        plt.scatter(getattr(self,'h_'+col)[:-1],getattr(self,col)[i,:],color = c[i])
+
+
+    def Training_Ages(self):
+        ''' Return X,y for Age estimation of the crater '''
+        
+        feature = ('Diameter','Long','Lat',)
+        feature += tuple(self.feat_lola.keys(),)
+        feature += tuple(self.feat_grail.keys(),)
+        X = np.hstack([getattr(self,f) for f in feature])
+        y =  self.Age.astype('int')
+
+
+        X = X[(y != 19).any(axis=1)]
+        y =  y[(y != 19).any(axis=1)].ravel()
+        
+        return X,y
+        
+
+
+
+        
             
 
         
