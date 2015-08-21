@@ -23,6 +23,7 @@ import datetime
     
 ##############################
 # Platform
+
 platform = 'laptop'
 pix = '4'
     
@@ -95,7 +96,7 @@ def Extract_Array_Lola(MapLola,row):
     h_ZI = ['LI_'+str(f) for f in range(len(Z_Int))]
     h_ZE = ['LE_'+str(f) for f in range(len(Z_Ext))]
     h_ZR = ['LR_'+str(f) for f in range(len(Z_Rim))]
-    
+
     return (h_ZI,h_ZE,h_ZR),(Z_Int,Z_Ext,Z_Rim)
 
 def Binned_Array_Lola(Z_Int,Z_Ext,Z_Couronne,h_feat_lola,feat_lola):
@@ -301,9 +302,8 @@ df = Construct_DataFrame(Source)
 # df = Crater_Data(Source)
 # df = df[df.Name.isin(['Taruntius','Vitello','Hermite','Meton','A68'])]
 # df = df[df.Name.isin(['Taruntius','Vitello'])]
-# df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
-# df = df.reindex(np.random.permutation(df.index))
-# df = df[:2]
+df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
+df = df.reindex(np.random.permutation(df.index))
 
 # Compteur
 compteur_init = len(df)
