@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import pickle
 import sys
+import pdb
 import os
 from Extract_Array import *
 import scipy.stats as st
@@ -23,7 +24,7 @@ import datetime
 ##############################
 # Platform
 platform = 'laptop'
-pix = '16'
+pix = '4'
     
 if _platform == "linux" or _platform == "linux2":
     Root = '/gpfs/users/thorey/Classification/'
@@ -185,6 +186,17 @@ def _Transform_Neg_Long(x):
         return x
     else:
         return 360+x
+
+def Age_Scale(Age):
+    Dict_Name = {'coper' : 6, # Copernican plus recent
+                 'erato' : 5, # Eratothetian 
+                 'imbri' : 3, # Lower imbriam ( Il y en a qu'un ou deux qui n'a pas de lower ou upper -> Lower'')
+                 'lower' : 3, # Lower imbriam
+                 'upper' : 4, # Upper Imbriam
+                 'necta' : 2, # Nectarian
+                 'pre-n' : 1, # Pre-nectarian
+                 'nan':7}
+    return Dict_Name[Age]
     
 def Construct_DataFrame(Racine):            
     #On recupere chaque dataset separement
@@ -208,16 +220,13 @@ def Construct_DataFrame(Racine):
     df = df.join(F[col_join] , on ='Name')
     # On ajoute les FFC qui etaient pas ds le dataset initiales
     df = df.append(F[~F.Name.isin(df.Name)][df.columns])
-    # join C2 dataset
+
+    # Join C2 on Name
     col_join =  ['Age']
     df = df.join(C2[col_join] , on = 'Name')
     df.Class = df.Class.map(_Class_Type)
     df.Type = df.Type.map(_Class_Type)
-    Ages = [f for f in map(str,list(set(df.Age.tolist()))) if f != 'nan']
-    dict_ages = dict(zip(Ages,range(len(Ages))))
-    dict_ages['nan'] = '19'
-    df.Age = df.Age.map(lambda x:dict_ages[str(x)])
-    
+    df.Age = df.Age.map(lambda x:Age_Scale(str(x).strip().lower()[:5]))
     df.index = np.arange( len( df ))
     df.Long = df.Long.map(_Transform_Neg_Long)
     return df
@@ -278,6 +287,7 @@ def feat_update(feat,feat_tmp):
 
 ###################
 # Object MapLola et MapGrail
+    
 carte_lolas = Carte_Lola(Path_lola,pix)
 MapGrails = Carte_Grail(Path_grail)
 # MapGrails = [BinaryGrailTable(Path_grail+'34_12_3220_900_80_misfit_rad'),
@@ -287,12 +297,13 @@ MapGrails = Carte_Grail(Path_grail)
 # Source = Root+'Data/CRATER_MOON_DATA'
 Source = Root +'Data/'
 df = Construct_DataFrame(Source)
+
 # df = Crater_Data(Source)
 # df = df[df.Name.isin(['Taruntius','Vitello','Hermite','Meton','A68'])]
-# # df = df[df.Name.isin(['Taruntius','Vitello'])]
-df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
-df = df.reindex(np.random.permutation(df.index))
-df = df[:25]
+df = df[df.Name.isin(['Taruntius','Vitello'])]
+# df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
+# df = df.reindex(np.random.permutation(df.index))
+# df = df[:2]
 
 # Compteur
 compteur_init = len(df)
@@ -319,7 +330,7 @@ for carte_lola in carte_lolas:
     border = MapLola.Boundary()
     dfmap  = df[(df.Long>border[0]) & (df.Long<border[1]) &(df.Lat>border[2]) & (df.Lat<border[3])]
     for i,row in dfmap.iterrows():
-        # print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
+        print 'Il reste encore %d/%d iterations \n'%(compteur,compteur_init)
         tracker = open('tracker_'+pix+'.txt','a')
         tracker.write('Il reste encore %d/%d iterations \n'%(compteur,compteur_init))
         tracker.close()
