@@ -24,7 +24,7 @@ import datetime
 ##############################
 # Platform
 platform = 'linux'
-pix = '4'
+pix = '256'
     
 if _platform == "linux" or _platform == "linux2":
     Root = '/gpfs/users/thorey/Classification/'
@@ -301,9 +301,8 @@ df = Construct_DataFrame(Source)
 # df = Crater_Data(Source)
 # df = df[df.Name.isin(['Taruntius','Vitello','Hermite','Meton','A68'])]
 # df = df[df.Name.isin(['Taruntius','Vitello'])]
-# df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
-# df = df.reindex(np.random.permutation(df.index))
-# df = df[:2]
+df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
+df = df.reindex(np.random.permutation(df.index))
 
 # Compteur
 compteur_init = len(df)
