@@ -8,7 +8,6 @@ from sklearn import *
 class Data(object):
     ''' Class qui handles les objects pickled avec extract data'''
 
-
     def __init__(self,pix,root):
         ''' Parameter d'entre et attribut '''
 
@@ -41,7 +40,7 @@ class Data(object):
         plt.scatter(getattr(self,'h_'+col)[:-1],getattr(self,col)[i,:],color = c[i])
 
 
-    def Training_Ages(self):
+    def Ages_Array(self):
         ''' Return X,y for Age estimation of the crater '''
         
         feature = ('Diameter','Long','Lat',)
@@ -55,8 +54,19 @@ class Data(object):
         y =  y[(y != 19).any(axis=1)].ravel()
         
         return X,y
-        
 
+    def Ages_data(self):
+        ''' Return lequivalent de data la ou on connait l age'''
+
+        data_tmp  = {}
+        keys = [f for f in self.data.keys() if not f.split('_')[0] in ['h','failed']] # Enleve les cat inutiles
+        indice = np.where(self.Age.astype('int')<19)[0] # Indice des element dont on connait l'age'
+        indice = np.where((self.Age.astype('int')<19)&(self.Type.astype('int') ==0))[0]
+        for key in keys:
+            data_tmp[key] = {k:v[indice] for k,v in self.data[key].iteritems()}
+            
+        return data_tmp
+    
 
 
         
