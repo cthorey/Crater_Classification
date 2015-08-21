@@ -23,7 +23,7 @@ import datetime
     
 ##############################
 # Platform
-platform = 'laptop'
+platform = 'linux'
 pix = '4'
     
 if _platform == "linux" or _platform == "linux2":
@@ -229,6 +229,7 @@ def Construct_DataFrame(Racine):
     df.Age = df.Age.map(lambda x:Age_Scale(str(x).strip().lower()[:5]))
     df.index = np.arange( len( df ))
     df.Long = df.Long.map(_Transform_Neg_Long)
+    df.index = range(len(df))
     return df
     
 def Dataframe(Source):
@@ -294,13 +295,12 @@ MapGrails = Carte_Grail(Path_grail)
 #              BinaryGrailTable(Path_grail+'34_12_3220_900_80_misfit_theta')]
 
 # on recupere le dataframe avec tous les craters
-# Source = Root+'Data/CRATER_MOON_DATA'
 Source = Root +'Data/'
 df = Construct_DataFrame(Source)
 
 # df = Crater_Data(Source)
 # df = df[df.Name.isin(['Taruntius','Vitello','Hermite','Meton','A68'])]
-df = df[df.Name.isin(['Taruntius','Vitello'])]
+# df = df[df.Name.isin(['Taruntius','Vitello'])]
 # df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
 # df = df.reindex(np.random.permutation(df.index))
 # df = df[:2]
