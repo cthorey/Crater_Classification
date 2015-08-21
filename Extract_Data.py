@@ -23,7 +23,7 @@ import datetime
     
 ##############################
 # Platform
-platform = 'linux'
+platform = 'laptop'
 pix = '4'
     
 if _platform == "linux" or _platform == "linux2":
