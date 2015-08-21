@@ -23,7 +23,7 @@ import datetime
 ##############################
 # Platform
 platform = 'laptop'
-pix = '16'
+pix = '64'
     
 if _platform == "linux" or _platform == "linux2":
     Root = '/gpfs/users/thorey/Classification/'

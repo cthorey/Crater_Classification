@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --mem 50000
-#SBATCH -J Pix_256
+#SBATCH -J Pix_64
 #SBATCH --partition data
 
 echo "Running on: $SLURM_NODELIST"
@@ -9,4 +9,4 @@ module purge
 module load slurm
 module load python/gcc/2.7.3_ext
 
-python //gpfs/users/thorey/Classification/Script/Extract_Data.py
+python //gpfs/users/thorey/Classification/Script/Extract_Window.py
