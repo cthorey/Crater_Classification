@@ -326,29 +326,31 @@ df = Construct_DataFrame(Source)
 df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
 df = df.reindex(np.random.permutation(df.index))
 
-# Compteur
-compteur_init = len(df)
-compteur =  compteur_init
-tracker = open('tracker_'+pix+'.txt','wr+')
-tracker.write('Resolution de %s pixel par degree\n'%(str(pix)))
-tracker.close()
-# Variable utiles
-failed = []
-ind_border = []
-
-# Initialisation dict et list
-feat_df_tmp = Initialize_feat_df(df)
-feat_df = Initialize_feat_df(df)
-h_feat_lola_tmp , feat_lola_tmp = Initialize_feat_lola()
-h_feat_lola , feat_lola = Initialize_feat_lola()
-h_feat_grail_tmp , feat_grail_tmp  = Initialize_feat_grail(MapGrails)
-h_feat_grail , feat_grail  = Initialize_feat_grail(MapGrails)
-
 #Debut boucle
 for carte_lola in carte_lolas:
+    # Variable utiles
+    failed = []
+    ind_border = []
+
+    # Initialisation dict et list
+    feat_df_tmp = Initialize_feat_df(df)
+    feat_df = Initialize_feat_df(df)
+    h_feat_lola_tmp , feat_lola_tmp = Initialize_feat_lola()
+    h_feat_lola , feat_lola = Initialize_feat_lola()
+    h_feat_grail_tmp , feat_grail_tmp  = Initialize_feat_grail(MapGrails)
+    h_feat_grail , feat_grail  = Initialize_feat_grail(MapGrails)
+
     MapLola = BinaryLolaTable(carte_lola)
     border = MapLola.Boundary()
     dfmap  = df[(df.Long>border[0]) & (df.Long<border[1]) &(df.Lat>border[2]) & (df.Lat<border[3])]
+
+    # Compteur
+    compteur_init = len(dfmap)
+    compteur =  compteur_init
+    tracker = open('tracker_'+pix+'_'+carte_lola+'.txt','wr+')
+    tracker.write('Resolution de %s pixel par degree\n'%(str(pix)))
+    tracker.close()
+    
     for i,row in dfmap.iterrows():
         tracker = open('tracker_'+pix+'.txt','a')
         tracker.write('Il reste encore %d/%d iterations \n'%(compteur,compteur_init))
@@ -385,20 +387,10 @@ for carte_lola in carte_lolas:
                      'h_feat_lola' : h_feat_lola,
                      'feat_grail' : feat_grail,
                      'h_feat_grail' : h_feat_grail}
-    with open(Output+'LOLA'+pix+'_GRAIL_Dataset', 'wb') as fi:
+    with open(Output+'LOLA'+pix+'_GRAIL_Dataset_'+carte_lola, 'wb') as fi:
         pickle.dump(pickle_object, fi, pickle.HIGHEST_PROTOCOL)
 
 
-#Pickle object
-pickle_object = {'failed_border' : ind_border,
-                 'failed_Error' : failed,
-                 'feat_df' : feat_df,
-                 'feat_lola' : feat_lola,
-                 'h_feat_lola' : h_feat_lola,
-                 'feat_grail' : feat_grail,
-                 'h_feat_grail' : h_feat_grail}
-with open(Output+'LOLA'+pix+'_GRAIL_Dataset', 'wb') as fi:
-    pickle.dump(pickle_object, fi, pickle.HIGHEST_PROTOCOL)
 
 
 
