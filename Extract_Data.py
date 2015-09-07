@@ -14,6 +14,7 @@ import pdb
 import os
 from Extract_Array import *
 import scipy.stats as st
+from shapely.geometry import *
 
 from sys import platform as _platform
 import distutils.util
@@ -25,7 +26,7 @@ import datetime
 # Platform
 
 platform = 'laptop'
-pix = '4'
+pix = '64'
     
 if _platform == "linux" or _platform == "linux2":
     Root = '/gpfs/users/thorey/Classification/'
@@ -260,7 +261,25 @@ def Initialize_feat_lola():
 def Initialize_feat_df(df):
     feat_df = dict.fromkeys(df.columns)
     return feat_df
-    
+
+def haversine(lon1, lat1, lon2, lat2):
+
+    import numpy as np
+    """
+    Calculate the great circle distance between two points 
+    on the earth (specified in decimal degrees). The angle
+    should be in rad
+    """
+    # haversine formula 
+    dlon = lon2 - lon1 
+    dlat = lat2 - lat1 
+    a = np.sin(dlat/2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2)**2
+    c = 2 * np.arcsin(np.sqrt(a)) 
+
+    # 6367 km is the radius of the Earth
+    km = 1734 * c
+    return km
+        
 def Initialize_feat_grail(MapGrails):
     col = ['stat_center','anomaly_center']
     feat_grail  = []
@@ -291,10 +310,12 @@ def feat_update(feat,feat_tmp):
 # Object MapLola et MapGrail
     
 carte_lolas = Carte_Lola(Path_lola,pix)
-MapGrails = Carte_Grail(Path_grail)
-# MapGrails = [BinaryGrailTable(Path_grail+'34_12_3220_900_80_misfit_rad'),
-#              BinaryGrailTable(Path_grail+'34_12_3220_900_80_misfit_theta')]
+# MapGrails = Carte_Grail(Path_grail)
+MapGrails = [BinaryGrailTable(Path_grail+'34_12_3220_900_80_misfit_rad'),
+             BinaryGrailTable(Path_grail+'34_12_3220_900_80_misfit_theta')]
+print len(carte_lolas),Path_lola
 
+sys.exit()
 # on recupere le dataframe avec tous les craters
 Source = Root +'Data/'
 df = Construct_DataFrame(Source)
@@ -312,7 +333,6 @@ tracker = open('tracker_'+pix+'.txt','wr+')
 tracker.write('Resolution de %s pixel par degree\n'%(str(pix)))
 tracker.close()
 # Variable utiles
-
 failed = []
 ind_border = []
 
@@ -356,10 +376,20 @@ for carte_lola in carte_lolas:
                 feat_grail = feat_update(feat_grail,feat_grail_tmp)
             except:
                 failed.append(i)
-                
-        compteur-=1
+            
+    compteur-=1
+    pickle_object = {'failed_border' : ind_border,
+                     'failed_Error' : failed,
+                     'feat_df' : feat_df,
+                     'feat_lola' : feat_lola,
+                     'h_feat_lola' : h_feat_lola,
+                     'feat_grail' : feat_grail,
+                     'h_feat_grail' : h_feat_grail}
+    with open(Output+'LOLA'+pix+'_GRAIL_Dataset', 'wb') as fi:
+        pickle.dump(pickle_object, fi, pickle.HIGHEST_PROTOCOL)
 
-        #Pickle object
+
+#Pickle object
 pickle_object = {'failed_border' : ind_border,
                  'failed_Error' : failed,
                  'feat_df' : feat_df,
