@@ -313,9 +313,7 @@ carte_lolas = Carte_Lola(Path_lola,pix)
 # MapGrails = Carte_Grail(Path_grail)
 MapGrails = [BinaryGrailTable(Path_grail+'34_12_3220_900_80_misfit_rad'),
              BinaryGrailTable(Path_grail+'34_12_3220_900_80_misfit_theta')]
-print len(carte_lolas),Path_lola
 
-sys.exit()
 # on recupere le dataframe avec tous les craters
 Source = Root +'Data/'
 df = Construct_DataFrame(Source)
@@ -379,7 +377,7 @@ for carte_lola in carte_lolas:
             except:
                 failed.append(i)
             
-    compteur-=1
+        compteur-=1
     pickle_object = {'failed_border' : ind_border,
                      'failed_Error' : failed,
                      'feat_df' : feat_df,

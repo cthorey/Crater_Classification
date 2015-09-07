@@ -27,7 +27,7 @@ class BinaryLolaTable(object):
                     setattr(self,attr[0],attr[1].split(' ')[0])
                     
     def Load_XYZ(self):
-        ''' Return une carte avec -180<lon<180 et -90<lat<90'''
+        ''' Return une carte avec 0<lon<360 et -90<lat<90'''
         X = self._Load_X()
         Y = self._Load_Y()
         Z = self._Load_Z()
@@ -223,7 +223,7 @@ class BinaryGrailTable(BinaryLolaTable):
         plt.pcolormesh(X,Y,self.Z)
 
     
-class Crater(BinaryGrailTable):
+class Crater(BinaryLolaTable):
             
     def __init__(self,Name,which_lola):
         super(Crater,self).__init__(which_lola)
