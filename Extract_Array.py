@@ -7,7 +7,9 @@ import pandas as pd
 import matplotlib.pylab as plt
 from mpl_toolkits.basemap import Basemap
 import sys
-
+from planetaryimage import PDS3Image
+from matplotlib import cm
+        
 class BinaryLolaTable(object):
 
     def __init__(self,which_lola):
@@ -111,7 +113,8 @@ class BinaryLolaTable(object):
         #Long/lat min (voir wikipedia)
         longll = -radi/np.cos(phi0)+lamb0
         latll = np.arcsin((-radi+np.sin(phi0)/np.cos(phi0))*np.cos(phi0))
-
+        if np.isnan(latll):
+          latll = -90*np.pi/180.0
         #Long/lat max (voir wikipedia)
         longtr = radi/np.cos(phi0)+lamb0
         lattr = np.arcsin((radi+np.tan(phi0))*np.cos(phi0))
@@ -222,18 +225,84 @@ class BinaryGrailTable(BinaryLolaTable):
         # X,Y = m(X,Y)
         plt.pcolormesh(X,Y,self.Z)
 
-    
-class Crater(BinaryLolaTable):
+
+class BinaryWACTable(PDS3Image,BinaryLolaTable):
+
+    def __init__(self,which_wac):
+        wac = PDS3Image.open(which_wac)
+        for key,val in wac.__dict__.iteritems():
+            setattr(self,key,val)
+
+        for key,val in self.label['IMAGE_MAP_PROJECTION']:
+            try :
+                setattr(self,key,val.value)
+            except:
+                pass
+        for key,val in self.label['IMAGE']:
+            try :
+                setattr(self,key,val)
+            except:
+                pass
+        self.projection = str(self.label['IMAGE_MAP_PROJECTION']['MAP_PROJECTION_TYPE'])
+        self.X,self.Y,self.Z = self.Load_XYZ()
+
+
+    def _Load_X(self):
+        ''' Info trouver dans cette base de donne
+        http://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/catalog/dsmap.cat'''
+
+        Lon = np.arange(int(self.LINE_SAMPLES))+1
+
+        if self.projection == 'EQUIRECTANGULAR':
+            Lon = self.CENTER_LONGITUDE + (Lon - self.SAMPLE_PROJECTION_OFFSET -1)*self.MAP_SCALE*1e-3/(self.A_AXIS_RADIUS*np.cos(self.CENTER_LATITUDE*np.pi/180.0))
+        else:
+            print 'Projection pas implementer, implementer d abord'
+            sys.exit()                  
+
+        return Lon*180/np.pi
+        
+    def _Load_Y(self):
+        ''' Info trouver dans cette base de donne
+        http://lroc.sese.asu.edu/data/LRO-L-LROC-5-RDR-V1.0/LROLRC_2001/CATALOG/DSMAP.CAT
+        Erreur dans EQUIRECTANGULAR PROJECTIOn pour LAT +L0 au lieu de -'''
+
+        Lat = np.arange(int(self.LINES))+1
+
+        if self.projection == 'EQUIRECTANGULAR':
+            Lat = ((1 + self.LINE_PROJECTION_OFFSET- Lat)*self.MAP_SCALE*1e-3/self.A_AXIS_RADIUS)
+        else:
+            print 'Projection pas implementer, implementer d abord'
+            sys.exit()                  
+
+        return Lat*180/np.pi
+
+    def Load_XYZ(self):
+        ''' Return une carte avec 0<lon<360 et -90<lat<90'''
+        X = self._Load_X()
+        Y = self._Load_Y()
+        Z = self.data
+        return X,Y,Z
+        
+    def Plot_Global_Map(self):
+        m = Basemap(projection='moll',lon_0=0,resolution='c')
+        fig = plt.figure(figsize=(15,7.5))
+        ax = fig.add_subplot(111)
+        X,Y = np.meshgrid(self.X,self.Y)
+        m.pcolormesh(X,Y,self.Z,latlon = True, cmap ='gray')
+
+        
+class Crater(object):
             
-    def __init__(self,Name,which_lola):
-        super(Crater,self).__init__(which_lola)
+    def __init__(self,Name):
         self.Name = Name
         df = self.Crater_Data()
         df = df[df.Name == Name]
         print df
         [setattr(self,f,float(df[f])) for f in df.columns if f not in ['Name']]
         self.Taille_Window = 0.8*self.Diameter
-
+        if self.Long <0.0:
+            self.Long = 360+self.Long
+        
     def Crater_Data(self):
         Racine = '/Users/thorey/Documents/These/Projet/FFC/Classification/Data/'
         Source = 'CRATER_MOON_DATA'
@@ -247,21 +316,83 @@ class Crater(BinaryLolaTable):
         return df
 
     def Plot_Mesh(self):
+        fig = plt.figure(figsize=(12,7.5))
+        ax = fig.add_subplot(111)
         X,Y,Z = self.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
-        print X
-        plt.pcolormesh(X,Y,Z)
-        plt.scatter(self.Long,self.Lat)
+        ax.pcolormesh(X,Y,Z, cmap ='binary')
+        ax.scatter(self.Long,self.Lat)
+        return fig,ax
 
-    def Plot_Basemap(self):
-        X,Y,Z = self.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
-        lon_m,lon_M,lat_m,lat_M = self.Lambert_Window(self.Taille_Window,self.Lat,self.Long)
+    def Plot_Mesh2(self,Wac,Grail):
+        fig = plt.figure(figsize=(12,7.5))
+        ax = fig.add_subplot(111)
+        Xw,Yw,Zw = Wac.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        Xg,Yg,Zg = Grail.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        ax.pcolormesh(Xw,Yw,Zw, cmap ='binary')
+        ax.pcolormesh(Xg,Yg,Zg, cmap ='jet')
+        return fig,ax
+
+    def plot_LOLA(self,Wac,Lola):
+        fig = plt.figure(figsize=(24,14))
+        ax1 = fig.add_subplot(111)
+        X,Y,Z = Wac.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        lon_m,lon_M,lat_m,lat_M = Wac.Lambert_Window(self.Taille_Window,self.Lat,self.Long)
         m = Basemap(llcrnrlon =lon_m, llcrnrlat=lat_m, urcrnrlon=lon_M, urcrnrlat=lat_M,
                     resolution='i',projection='laea',rsphere = 1734400, lat_0 = self.Lat,lon_0 = self.Long)
         X,Y = m(X,Y)
-        plt.pcolormesh(X,Y,Z)
-        lon,lat = m(self.Long,self.Lat)
-        plt.scatter(lat,lon)
+        m.pcolor(X,Y,Z,cmap = cm.gray ,ax  = ax1)
+        Xl,Yl,Zl = Lola.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        Xl,Yl = m(Xl,Yl)
+        CS3 = m.contourf(Xl,Yl,Zl,cmap='gist_earth',animated=True , alpha = 0.1)
+        cb = m.colorbar(CS3,"right", size="5%", pad="2%")
+        cb.set_label('Topography', size = 24)
+        xc,yc = m(self.Long,self.Lat)
+        ax1.scatter(xc,yc,s=100,marker ='v')
 
+    def plot_GRAIL(self,Wac,Grail):
+        fig = plt.figure(figsize=(24,14))
+        ax1 = fig.add_subplot(111)
+        X,Y,Z = Wac.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        lon_m,lon_M,lat_m,lat_M = Wac.Lambert_Window(self.Taille_Window,self.Lat,self.Long)
+        m = Basemap(llcrnrlon =lon_m, llcrnrlat=lat_m, urcrnrlon=lon_M, urcrnrlat=lat_M,
+                    resolution='i',projection='laea',rsphere = 1734400, lat_0 = self.Lat,lon_0 = self.Long)
+        X,Y = m(X,Y)
+        m.pcolor(X,Y,Z,cmap = cm.gray ,ax  = ax1)
+        Xg,Yg,Zg = Grail.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        clevs = np.arange(-50,50,5)
+        Xg,Yg = m(Xg,Yg)
+        CS2 = m.contour(Xg,Yg,Zg,clevs,linewidths=0.5,colors='k',animated=True)
+        CS3 = m.contourf(Xg,Yg,Zg,clevs,cmap=plt.cm.RdBu_r,animated=True , alpha = 0.5)
+        cb = m.colorbar(CS3,"right", size="5%", pad="2%")
+        cb.set_label('Gravity anomaly',size = 24)
+        
+    def plot_tout(self,Wac,Grail,Lola):
+        fig = plt.figure(figsize=(24,14))
+        ax1 = fig.add_subplot(121)
+        X,Y,Z = Wac.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        lon_m,lon_M,lat_m,lat_M = Wac.Lambert_Window(self.Taille_Window,self.Lat,self.Long)
+        m = Basemap(llcrnrlon =lon_m, llcrnrlat=lat_m, urcrnrlon=lon_M, urcrnrlat=lat_M,
+                    resolution='i',projection='laea',rsphere = 1734400, lat_0 = self.Lat,lon_0 = self.Long)
+        X,Y = m(X,Y)
+        m.pcolor(X,Y,Z,cmap = cm.gray ,ax  = ax1)
+        Xl,Yl,Zl = Lola.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        Xl,Yl = m(Xl,Yl)
+        CS2 = m.contour(Xl,Yl,Zl,linewidths=0.5,colors='k',animated=True)
+        CS3 = m.contourf(Xl,Yl,Zl,cmap='gist_earth',animated=True , alpha = 0.1)
+        cb = m.colorbar(CS3,"right", size="5%", pad="2%")
+        cb.set_label('Topography', size = 24)
+
+        
+        ax2 = fig.add_subplot(122)
+        m.pcolor(X,Y,Z,cmap = cm.gray ,ax  = ax2)
+        Xg,Yg,Zg = Grail.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        clevs = np.arange(-100,100,10)
+        Xg,Yg = m(Xg,Yg)
+        CS2 = m.contour(Xg,Yg,Zg,clevs,linewidths=0.5,colors='k',animated=True)
+        CS3 = m.contourf(Xg,Yg,Zg,clevs,cmap=plt.cm.RdBu_r,animated=True , alpha = 0.3)
+        cb = m.colorbar(CS3,"right", size="5%", pad="2%")
+        cb.set_label('Gravity anomaly',size = 24)
+        
     def Deg(self,radius):
         return radius*360/(2*np.pi*1734.4)
 
