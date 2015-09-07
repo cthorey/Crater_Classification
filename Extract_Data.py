@@ -14,7 +14,7 @@ import pdb
 import os
 from Extract_Array import *
 import scipy.stats as st
-from shapely.geometry import *
+# from shapely.geometry import *
 
 from sys import platform as _platform
 import distutils.util
@@ -26,7 +26,7 @@ import datetime
 # Platform
 
 platform = 'laptop'
-pix = '64'
+pix = '512'
     
 if _platform == "linux" or _platform == "linux2":
     Root = '/gpfs/users/thorey/Classification/'
@@ -325,6 +325,11 @@ df = df[ ( df.Diameter > 15 ) & ( df.Diameter < 180 ) ]
 df = df.reindex(np.random.permutation(df.index))
 
 #Debut boucle
+# carte_lolas = carte_lolas[:4]
+# carte_lolas = carte_lolas[4:9]
+# carte_lolas = carte_lolas[9:13]
+carte_lolas = carte_lolas[13:]
+
 for carte_lola in carte_lolas:
     # Variable utiles
     failed = []
@@ -345,12 +350,12 @@ for carte_lola in carte_lolas:
     # Compteur
     compteur_init = len(dfmap)
     compteur =  compteur_init
-    tracker = open('tracker_'+pix+'_'+carte_lola+'.txt','wr+')
-    tracker.write('Resolution de %s pixel par degree\n'%(str(pix)))
+    tracker = open('tracker_'+pix+'_'+carte_lola.split('/')[-1]+'.txt','wr+')
+    tracker.write('Resolution de %s pixel par degree, carte %s \n'%(str(pix),carte_lola.split('/')[-1]))
     tracker.close()
     
     for i,row in dfmap.iterrows():
-        tracker = open('tracker_'+pix+'.txt','a')
+        tracker = open('tracker_'+pix+'_'+carte_lola.split('/')[-1]+'.txt','a')
         tracker.write('Il reste encore %d/%d iterations \n'%(compteur,compteur_init))
         tracker.close()
 
@@ -385,7 +390,7 @@ for carte_lola in carte_lolas:
                      'h_feat_lola' : h_feat_lola,
                      'feat_grail' : feat_grail,
                      'h_feat_grail' : h_feat_grail}
-    with open(Output+'LOLA'+pix+'_GRAIL_Dataset_'+carte_lola, 'wb') as fi:
+    with open(Output+'LOLA'+pix+'_GRAIL_Dataset_'+carte_lola.split('/')[-1], 'wb') as fi:
         pickle.dump(pickle_object, fi, pickle.HIGHEST_PROTOCOL)
 
 
