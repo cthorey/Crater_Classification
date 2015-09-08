@@ -9,6 +9,7 @@ from mpl_toolkits.basemap import Basemap
 import sys
 from planetaryimage import PDS3Image
 from matplotlib import cm
+import os
         
 class BinaryLolaTable(object):
 
@@ -301,7 +302,93 @@ class Crater(object):
         [setattr(self,f,float(df[f])) for f in df.columns if f not in ['Name']]
         self.Taille_Window = 0.8*self.Diameter
         if self.Long <0.0:
-            self.Long = 360+self.Long
+          self.Long = 360+self.Long
+
+        self.Load_Wac('128')
+        self.Load_Lola('ldem_16')
+        self.Load_Grail('34_12_3220_900_80_misfit_rad')
+        
+    def Cylindrical_Window(self,radius,lat0,long0):
+
+        # Passage en radian
+        radi = radius*2*np.pi/(2*1734.4*np.pi)
+        lamb0 = long0*np.pi/180.0
+        phi0 = lat0*np.pi/180.0
+
+        #Long/lat min (voir wikipedia)
+        longll = -radi/np.cos(phi0)+lamb0
+        latll = np.arcsin((-radi+np.sin(phi0)/np.cos(phi0))*np.cos(phi0))
+        if np.isnan(latll):
+          latll = -90*np.pi/180.0
+        #Long/lat max (voir wikipedia)
+        longtr = radi/np.cos(phi0)+lamb0
+        lattr = np.arcsin((radi+np.tan(phi0))*np.cos(phi0))
+
+        # print latll*180/np.pi,lat0,lattr*180/np.pi
+        # print longll*180/np.pi,long0,longtr*180/np.pi
+        return longll*180/np.pi,longtr*180/np.pi,latll*180/np.pi,lattr*180/np.pi
+
+    def _lon_center(self,lon_m,lon_M,wac_pix):
+        if int(wac_pix) == 4:
+            loncenter = '1800'
+        elif int(wac_pix) == 128:
+            map_lonmax = (lon_M//90+1)*90-45
+            map_lonmin = (lon_m//90+1)*90-45
+            if map_lonmax == map_lonmin:
+                st = (lon_m//90+1)*90-45
+                print st
+                if len(str(st).split('.')[0]) == 1:
+                    loncenter = ''.join(['00']+str(st).split('.'))
+                elif len(str(st).split('.')[0]) == 2:
+                    loncenter = ''.join(['0']+str(st).split('.'))
+                else:
+                    loncenter = ''.join(str(st).split('.'))
+            else:
+                print 'pas encore implementer'
+                sys.exit()
+        else:
+            print 'Pas encore implementer'
+            sys.exit()
+                                
+        return loncenter
+
+    def _lat_center(self,lat_m,lat_M,wac_pix):
+        if int(wac_pix) in [4,16]:
+            latcenter = '000N'
+        elif int(wac_pix) == 128:
+            if lat_m*lat_M>0:
+                if lat_m<0:
+                    latcenter = '450S'
+                else:
+                    latcenter = '450N'
+            else:
+                print 'pas encore implementer'
+                sys.exit()
+        else:
+            print 'pas encore implementer'
+            sys.exit()
+            
+        return latcenter
+                                
+    def Load_Wac(self,wac_pix):
+            
+        lon_m,lon_M,lat_m,lat_M = self.Cylindrical_Window(self.Taille_Window,self.Lat,self.Long)
+        latcenter = self._lat_center(lat_m,lat_M,wac_pix)
+        loncenter = self._lon_center(lon_m,lon_M,wac_pix)
+        wac = 'WAC_GLOBAL_E'+latcenter+loncenter+'_'+wac_pix+'P.IMG'
+        f = os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification','PDS_FILE','LROC_WAC',wac)
+        self.Wac = BinaryWACTable(f)
+
+    def Load_Lola(self,name):
+            
+        f = os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification','PDS_FILE','Lola',name)
+        self.Lola = BinaryLolaTable(f)
+
+    def Load_Grail(self,name):
+            
+        f = os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification','PDS_FILE','Grail',name)
+        self.Grail = BinaryGrailTable(f)
+
         
     def Crater_Data(self):
         Racine = '/Users/thorey/Documents/These/Projet/FFC/Classification/Data/'
@@ -332,39 +419,94 @@ class Crater(object):
         ax.pcolormesh(Xg,Yg,Zg, cmap ='jet')
         return fig,ax
 
-    def plot_LOLA(self,Wac,Lola):
-        fig = plt.figure(figsize=(24,14))
-        ax1 = fig.add_subplot(111)
-        X,Y,Z = Wac.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
-        lon_m,lon_M,lat_m,lat_M = Wac.Lambert_Window(self.Taille_Window,self.Lat,self.Long)
-        m = Basemap(llcrnrlon =lon_m, llcrnrlat=lat_m, urcrnrlon=lon_M, urcrnrlat=lat_M,
-                    resolution='i',projection='laea',rsphere = 1734400, lat_0 = self.Lat,lon_0 = self.Long)
-        X,Y = m(X,Y)
-        m.pcolor(X,Y,Z,cmap = cm.gray ,ax  = ax1)
-        Xl,Yl,Zl = Lola.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
-        Xl,Yl = m(Xl,Yl)
-        CS3 = m.contourf(Xl,Yl,Zl,cmap='gist_earth',animated=True , alpha = 0.1)
-        cb = m.colorbar(CS3,"right", size="5%", pad="2%")
-        cb.set_label('Topography', size = 24)
-        xc,yc = m(self.Long,self.Lat)
-        ax1.scatter(xc,yc,s=100,marker ='v')
+    def save_fig(self,Name,fig):
 
-    def plot_GRAIL(self,Wac,Grail):
+        root = '/Users/thorey/Documents/These/Projet/FFC/Classification/Data/Image'
+        path = os.path.join(root,Name)
+        fig.savefig(path,rasterized=True, dpi=100,bbox_inches='tight',pad_inches=0.1)
+
+    def plot_LOLA(self):
+
+        if self.Wac =='' or self.Lola == '':
+            print 'load a wac and lola FIRSTTTT'
+            sys.exit()
+        
         fig = plt.figure(figsize=(24,14))
         ax1 = fig.add_subplot(111)
-        X,Y,Z = Wac.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
-        lon_m,lon_M,lat_m,lat_M = Wac.Lambert_Window(self.Taille_Window,self.Lat,self.Long)
+        ax1.set_rasterization_zorder(1)
+        X,Y,Z = self.Wac.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        lon_m,lon_M,lat_m,lat_M = self.Wac.Lambert_Window(self.Taille_Window,self.Lat,self.Long)
         m = Basemap(llcrnrlon =lon_m, llcrnrlat=lat_m, urcrnrlon=lon_M, urcrnrlat=lat_M,
                     resolution='i',projection='laea',rsphere = 1734400, lat_0 = self.Lat,lon_0 = self.Long)
         X,Y = m(X,Y)
-        m.pcolor(X,Y,Z,cmap = cm.gray ,ax  = ax1)
-        Xg,Yg,Zg = Grail.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        m.pcolor(X,Y,Z,cmap = cm.gray ,ax  = ax1,zorder =-1)
+        Xl,Yl,Zl = self.Lola.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        Xl,Yl = m(Xl,Yl)
+        # m.pcolor(Xl,Yl,Zl,cmap='gist_earth', alpha = 0.3 ,zorder=-1)
+        m.contourf(Xl,Yl,Zl,100,cmap='gist_earth', alpha = 0.3 , zorder=-1,antialiased=True)
+        # cb = m.colorbar(CS3,"right", size="5%", pad="2%")
+        # cb.set_label('Topography', size = 24)
+        xc,yc = m(self.Long,self.Lat)
+        ax1.scatter(xc,yc,s=100,marker ='v',zorder =2)
+
+        lol,loM,lam,laM = self.Wac.Lambert_Window(0.6*self.Diameter,self.Lat,self.Long)
+        m.drawmapscale(loM,lam, self.Long,self.Lat,10,
+                       barstyle='fancy', units='km',
+                       fontsize=24, yoffset=None,
+                       labelstyle='simple',
+                       fontcolor='k',
+                       fillcolor1='w',
+                       fillcolor2='k', ax=ax1,
+                       format='%d',
+                       zorder=-1)
+        ax1.set_title('Dome %s, %d km in diameter'%(self.Name,self.Diameter),size = 24)
+        Namefig = self.Name+'_'+str(self.Diameter)+'_Lola.eps'
+        
+        self.save_fig(Namefig,fig)
+
+
+    def plot_GRAIL(self):
+
+    
+        if self.Wac =='' or self.Grail == '':
+            print 'load a wac and lola FIRSTTTT'
+            sys.exit()
+            
+        fig = plt.figure(figsize=(24,14))
+        ax1 = fig.add_subplot(111)
+        ax1.set_rasterization_zorder(1)
+        X,Y,Z = self.Wac.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        lon_m,lon_M,lat_m,lat_M = self.Wac.Lambert_Window(self.Taille_Window,self.Lat,self.Long)
+        m = Basemap(llcrnrlon =lon_m, llcrnrlat=lat_m, urcrnrlon=lon_M, urcrnrlat=lat_M,
+                    resolution='i',projection='laea',rsphere = 1734400, lat_0 = self.Lat,lon_0 = self.Long)
+        X,Y = m(X,Y)
+        m.pcolor(X,Y,Z,cmap = cm.gray ,ax  = ax1,zorder=-1)
+        
+        Xg,Yg,Zg = self.Grail.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
         clevs = np.arange(-50,50,5)
         Xg,Yg = m(Xg,Yg)
-        CS2 = m.contour(Xg,Yg,Zg,clevs,linewidths=0.5,colors='k',animated=True)
-        CS3 = m.contourf(Xg,Yg,Zg,clevs,cmap=plt.cm.RdBu_r,animated=True , alpha = 0.5)
+        # CS2 = m.contour(Xg,Yg,Zg,clevs,linewidths=0.5,colors='k',antialiased = True ,zorder= -1, )
+        CS3 = m.contourf(Xg,Yg,Zg,clevs,cmap=plt.cm.RdBu_r,antialiased = True , alpha = 0.5,zorder =-1)
         cb = m.colorbar(CS3,"right", size="5%", pad="2%")
         cb.set_label('Gravity anomaly',size = 24)
+
+        xc,yc = m(self.Long,self.Lat)
+        ax1.scatter(xc,yc,s=100,marker ='v',zorder =2)
+
+        lol,loM,lam,laM = self.Wac.Lambert_Window(0.6*self.Diameter,self.Lat,self.Long)
+        m.drawmapscale(loM,lam, self.Long,self.Lat,10,
+                       barstyle='fancy', units='km',
+                       fontsize=24, yoffset=None,
+                       labelstyle='simple',
+                       fontcolor='k',
+                       fillcolor1='w',
+                       fillcolor2='k', ax=ax1,
+                       format='%d',
+                       zorder=-1)
+        ax1.set_title('Dome %s, %d km in diameter'%(self.Name,self.Diameter),size = 24)
+        Namefig = self.Name+'_'+str(self.Diameter)+'_Grail.eps'
+        
+        self.save_fig(Namefig,fig)
         
     def plot_tout(self,Wac,Grail,Lola):
         fig = plt.figure(figsize=(24,14))
