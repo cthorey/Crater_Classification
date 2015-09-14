@@ -10,6 +10,8 @@ import sys
 from planetaryimage import PDS3Image
 from matplotlib import cm
 import os
+from Data_utils import *
+
         
 class BinaryLolaTable(object):
 
@@ -291,22 +293,29 @@ class BinaryWACTable(PDS3Image,BinaryLolaTable):
         X,Y = np.meshgrid(self.X,self.Y)
         m.pcolormesh(X,Y,self.Z,latlon = True, cmap ='gray')
 
-        
+            
 class Crater(object):
             
-    def __init__(self,Name):
-        self.Name = Name
+    def __init__(self,ide,idx):
+        '''n pour le designer par son nom et i pour le designer par son
+        index '''
+
+        inde = {'n':'Name','i':'Index'}
         df = self.Crater_Data()
-        df = df[df.Name == Name]
+        df = df[df[inde[idx]] == ide]
         print df
-        [setattr(self,f,float(df[f])) for f in df.columns if f not in ['Name']]
-        self.Taille_Window = 0.8*self.Diameter
+        if len(df) == 0:
+            print 'Correpond a aucun crater'
+            raise Exception
+        [setattr(self,f,float(df[f])) for f in df.columns if f not in ['Name','Index']]
+        self.Taille_Window = 0.6*self.Diameter
         if self.Long <0.0:
           self.Long = 360+self.Long
 
-        self.Load_Wac('128')
-        self.Load_Lola('ldem_16')
-        self.Load_Grail('34_12_3220_900_80_misfit_rad')
+        self.Wac = ''
+        #self.Load_Wac('128')
+        #self.Load_Lola('ldem_16')
+        #self.Load_Grail('34_12_3220_900_80_misfit_rad')
         
     def Cylindrical_Window(self,radius,lat0,long0):
 
@@ -324,60 +333,236 @@ class Crater(object):
         longtr = radi/np.cos(phi0)+lamb0
         lattr = np.arcsin((radi+np.tan(phi0))*np.cos(phi0))
 
-        # print latll*180/np.pi,lat0,lattr*180/np.pi
-        # print longll*180/np.pi,long0,longtr*180/np.pi
         return longll*180/np.pi,longtr*180/np.pi,latll*180/np.pi,lattr*180/np.pi
 
-    def _lon_center(self,lon_m,lon_M,wac_pix):
-        if int(wac_pix) == 4:
-            loncenter = '1800'
-        elif int(wac_pix) == 128:
-            map_lonmax = (lon_M//90+1)*90-45
-            map_lonmin = (lon_m//90+1)*90-45
-            if map_lonmax == map_lonmin:
-                st = (lon_m//90+1)*90-45
-                print st
-                if len(str(st).split('.')[0]) == 1:
-                    loncenter = ''.join(['00']+str(st).split('.'))
-                elif len(str(st).split('.')[0]) == 2:
-                    loncenter = ''.join(['0']+str(st).split('.'))
-                else:
-                    loncenter = ''.join(str(st).split('.'))
-            else:
-                print 'pas encore implementer'
-                sys.exit()
-        else:
-            print 'Pas encore implementer'
-            sys.exit()
-                                
-        return loncenter
+    def _format_lon(self,lon):
+        lonf = float((lon//90+1)*90-45)        
+        st = str(lonf).split('.')
+        loncenter =''.join(("{0:0>3}".format(st[0]),st[1]))
 
-    def _lat_center(self,lat_m,lat_M,wac_pix):
-        if int(wac_pix) in [4,16]:
-            latcenter = '000N'
-        elif int(wac_pix) == 128:
-            if lat_m*lat_M>0:
-                if lat_m<0:
-                    latcenter = '450S'
-                else:
-                    latcenter = '450N'
-            else:
-                print 'pas encore implementer'
-                sys.exit()
+        return lonf,loncenter
+
+    def _format_lat(self,lat):
+        if lat<0:
+            latcenter = '450S'
+            latf = -45.0
         else:
-            print 'pas encore implementer'
-            sys.exit()
+            latcenter = '450N'
+            latf = 45.0
+        return latf,latcenter
+
+    def Define_Case(self,lon_m,lon_M,lat_m,lat_M):
+        ''' Case 1 : 0 Pas d'overlap, crater contenu ds une carte
+        Case 2: 1Overlap au niveau des long
+        Case 3:2 OVerlap au niveau des lat
+        Case 4 :3 Overlap partout
+        Boolean : True si overlap, false sinon'''
+        
+        map_lonmax = (lon_M//90+1)*90-45
+        map_lonmin = (lon_m//90+1)*90-45
+        lonBool = map_lonmax != map_lonmin
+        latBool = lat_m*lat_M < 0
+
+        if not lonBool and not latBool:
+            print 'Cas1'
+            self.Cas_1(lon_m,lat_m)
+        elif lonBool and not latBool:
+            print 'Cas2'
+            self.Cas_2(lon_m,lon_M,lat_m)
+        elif not lonBool and latBool:
+            print 'Cas 3'
+            self.Cas_3(lon_m,lat_m,lat_M)
+        else:
+            print 'Cas4'
+            self.Cas_4(lon_m,lon_M,lat_m,lat_M)
+
             
-        return latcenter
-                                
-    def Load_Wac(self,wac_pix):
-            
-        lon_m,lon_M,lat_m,lat_M = self.Cylindrical_Window(self.Taille_Window,self.Lat,self.Long)
-        latcenter = self._lat_center(lat_m,lat_M,wac_pix)
-        loncenter = self._lon_center(lon_m,lon_M,wac_pix)
-        wac = 'WAC_GLOBAL_E'+latcenter+loncenter+'_'+wac_pix+'P.IMG'
+    def Cas_1(self,lon,lat):
+        ''' Ni long ni lat ne croise en bord de la carte
+                colle le bon wac sur self.wac '''
+
+        lonf,lonc = self._format_lon(lon)
+        latf,latc = self._format_lat(lat)
+        wac = 'WAC_GLOBAL_E'+latc+lonc+'_128P.IMG'
         f = os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification','PDS_FILE','LROC_WAC',wac)
         self.Wac = BinaryWACTable(f)
+
+    def Cas_2(self,lon_m,lon_M,lat):
+        ''' long croise en bord de la carte
+        colle le bon wac sur self.wac '''
+        
+        lonmf,lonm = self._format_lon(lon_m)
+        lonMf,lonM = self._format_lon(lon_M)
+        latf,latc = self._format_lat(lat)
+        
+        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+                           'PDS_FILE',
+                           'LROC_WAC',
+                           'WAC_GLOBAL_E'+latc+lonm+'_128P.IMG'))
+        Wac_left = Wac
+        Wac_Ok = Wac
+        X_left_new = Wac_left.X[Wac_left.X > lonmf]
+        SizeY_left = Wac_left.Y.shape[0]
+        SizeX_left = X_left_new.shape[0]
+        mask_left = np.repeat((Wac_left.X[np.newaxis,:] > lonmf),SizeY_left,axis=0)
+        Z_left_new = Wac_left.Z[mask_left].reshape((SizeY_left,SizeX_left))
+        del Wac,Wac_left
+        
+        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+                                          'PDS_FILE',
+                                          'LROC_WAC',
+                                          'WAC_GLOBAL_E'+latc+lonM+'_128P.IMG'))
+        Wac_right = Wac
+        X_right_new = Wac_right.X[Wac_right.X < lonMf]
+        SizeY_right = Wac_right.Y.shape[0]
+        SizeX_right = X_right_new.shape[0]
+        mask_right = np.repeat((Wac_right.X[np.newaxis,:] < lonMf),SizeY_right,axis=0)
+        Z_right_new = Wac_right.Z[mask_right].reshape((SizeY_right,SizeX_right))
+        del Wac,Wac_right
+        
+        Wac_Ok.X = np.hstack((X_left_new,X_right_new))
+        Wac_Ok.Z = np.hstack((Z_left_new,Z_right_new))
+
+        self.Wac = Wac_Ok
+
+    def Cas_3(self,lon_m,lat_m,lat_M):
+        ''' lat croise en bord de la carte
+        colle le bon wac sur self.wac '''
+        
+        loncf,lonc = self._format_lon(lon_m)
+        latmf,latm = self._format_lat(lat_m)
+        latMf,latM = self._format_lat(lat_M)
+        
+        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+                                          'PDS_FILE',
+                                          'LROC_WAC',
+                                          'WAC_GLOBAL_E'+latm+lonc+'_128P.IMG'))
+        Wac_bot = Wac
+        Wac_Ok = Wac
+        
+        Y_bot_new = Wac_bot.Y[Wac_bot.Y > latmf]
+        SizeX_bot = Wac_bot.X.shape[0]
+        SizeY_bot = Y_bot_new.shape[0]
+        mask_bot = np.repeat((Wac_bot.Y[:,np.newaxis] > latmf),SizeX_bot,axis=1)
+        Z_bot_new = Wac_bot.Z[mask_bot].reshape((SizeY_bot,SizeX_bot))
+        del Wac,Wac_bot
+        
+        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+                                          'PDS_FILE',
+                                          'LROC_WAC',
+                                          'WAC_GLOBAL_E'+latM+lonc+'_128P.IMG'))
+        Wac_top = Wac
+        Y_top_new = Wac_top.Y[Wac_top.Y < latMf]
+        SizeX_top = Wac_top.X.shape[0]
+        SizeY_top = Y_top_new.shape[0]
+        mask_top = np.repeat((Wac_top.Y[:,np.newaxis] < latMf),SizeX_top,axis=1)
+        Z_top_new = Wac_top.Z[mask_top].reshape((SizeY_top,SizeX_top))
+        del Wac,Wac_top
+        
+        Wac_Ok.Y = np.hstack((Y_top_new,Y_bot_new))
+        Wac_Ok.Z = np.vstack((Z_top_new,Z_bot_new))
+        
+        self.Wac = Wac_Ok
+
+    def Cas_4(self,lon_m,lon_M,lat_m,lat_M):
+        '''Lat crois en bord de la carte et Long asusi
+        lon_mLat_M : 00
+        lon_m,Lat_m : 10
+        lon_M,Lat_M : 01
+        lon_M,lat_m : 11 '''
+        
+        lonmf,lonm = self._format_lon(lon_m)
+        lonMf,lonM = self._format_lon(lon_M)
+        latmf,latm = self._format_lat(lat_m)
+        latMf,latM = self._format_lat(lat_M)
+
+        # Carre haut gauche 00
+        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+                                          'PDS_FILE',
+                                          'LROC_WAC',
+                                          'WAC_GLOBAL_E'+latM+lonm+'_128P.IMG'))
+
+        Wac_Ok = Wac
+        Wac00 = Wac
+        X00 = Wac00.X[Wac00.X>lonmf]
+        Y00 = Wac00.Y[Wac00.Y<latMf]
+        SizeX = Wac00.X.shape[0]
+        SizeY = Wac00.Y.shape[0]
+        SizeX00 = X00.shape[0]
+        SizeY00 = Y00.shape[0]
+        mask00X = np.repeat((Wac00.X[np.newaxis,:] > lonmf),SizeY,axis=0)
+        mask00Y = np.repeat((Wac00.Y[:,np.newaxis] < latMf),SizeX,axis=1)
+        mask00 = mask00X&mask00Y
+        Z00 = Wac00.Z[mask00].reshape((SizeX00,SizeY00))
+        del Wac00,Wac
+        
+        # Carre Haut droit 01
+        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+                                          'PDS_FILE',
+                                          'LROC_WAC',
+                                          'WAC_GLOBAL_E'+latM+lonM+'_128P.IMG'))
+        Wac01 = Wac
+        X01 = Wac01.X[Wac01.X<lonMf]
+        Y01 = Wac01.Y[Wac01.Y<latMf]
+        SizeX = Wac01.X.shape[0]
+        SizeY = Wac01.Y.shape[0]
+        SizeX01 = X01.shape[0]
+        SizeY01 = Y01.shape[0]
+        mask01X = np.repeat((Wac01.X[np.newaxis,:] < lonMf),SizeY,axis=0)
+        mask01Y = np.repeat((Wac01.Y[:,np.newaxis] < latMf),SizeX,axis=1)
+        mask01 = mask01X&mask01Y
+        Z01 = Wac01.Z[mask01].reshape((SizeX01,SizeY01))        
+        del Wac01,Wac
+        
+        # Carre bas gauche 10
+        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+                                          'PDS_FILE',
+                                          'LROC_WAC',
+                                          'WAC_GLOBAL_E'+latm+lonm+'_128P.IMG'))
+        Wac10 = Wac
+        X10 = Wac10.X[Wac10.X>lonmf]
+        Y10 = Wac10.Y[Wac10.Y>latmf]
+        SizeX = Wac10.X.shape[0]
+        SizeY = Wac10.Y.shape[0]
+        SizeX10 = X10.shape[0]
+        SizeY10 = Y10.shape[0]
+        mask10X = np.repeat((Wac10.X[np.newaxis,:] > lonmf),SizeY,axis=0)
+        mask10Y = np.repeat((Wac10.Y[:,np.newaxis] > latmf),SizeX,axis=1)
+        mask10 = mask10X&mask10Y
+        Z10 = Wac10.Z[mask10].reshape((SizeX10,SizeY10))         
+        del Wac10,Wac
+        
+        # Carre bas gauche 11
+        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+                                          'PDS_FILE',
+                                          'LROC_WAC',
+                                          'WAC_GLOBAL_E'+latm+lonM+'_128P.IMG'))
+        Wac11 = Wac
+        X11 = Wac11.X[Wac11.X<lonMf]
+        Y11 = Wac11.Y[Wac11.Y>latmf]
+        SizeX = Wac11.X.shape[0]
+        SizeY = Wac11.Y.shape[0]
+        SizeX11 = X11.shape[0]
+        SizeY11 = Y11.shape[0]
+        mask11X = np.repeat((Wac11.X[np.newaxis,:] < lonMf),SizeY,axis=0)
+        mask11Y = np.repeat((Wac11.Y[:,np.newaxis] > latmf),SizeX,axis=1)
+        mask11 = mask11X&mask11Y
+        Z11 = Wac11.Z[mask11].reshape((SizeX11,SizeY11))
+        del Wac11,Wac
+
+        # On rassemble tous
+        Wac_Ok.X = np.hstack((X00,X01))
+        Wac_Ok.Y = np.hstack((Y00,Y10))
+        Z_top = np.hstack((Z00,Z01))
+        Z_bot = np.hstack((Z10,Z11))
+        Wac_Ok.Z = np.vstack((Z_top,Z_bot))
+
+        self.Wac = Wac_Ok        
+        
+    def Load_Wac(self):
+            
+        lon_m,lon_M,lat_m,lat_M = self.Cylindrical_Window(self.Taille_Window,self.Lat,self.Long)
+        self.Define_Case(lon_m,lon_M,lat_m,lat_M)
 
     def Load_Lola(self,name):
             
@@ -391,10 +576,10 @@ class Crater(object):
 
         
     def Crater_Data(self):
-        Racine = '/Users/thorey/Documents/These/Projet/FFC/Classification/Data/'
-        Source = 'CRATER_MOON_DATA'
-        df = self._unload_pickle(Racine+Source)
-        print df.columns
+        Racine = '/Users/thorey/Documents/These/Projet/FFC/Classification/Data'
+        data = Data(64,Racine,'_2')
+        df = pd.DataFrame(np.hstack((data.Name,data.Index,data.Lat,data.Long,data.Diameter))
+                          ,columns = ['Name','Index','Lat','Long','Diameter'])
         return df
         
     def _unload_pickle(self,input_file):
@@ -423,8 +608,44 @@ class Crater(object):
 
         root = '/Users/thorey/Documents/These/Projet/FFC/Classification/Data/Image'
         path = os.path.join(root,Name)
-        fig.savefig(path,rasterized=True, dpi=100,bbox_inches='tight',pad_inches=0.1)
+        fig.savefig(path,rasterized=True, dpi=50,bbox_inches='tight',pad_inches=0.1)
 
+    def LROC_Image_Feature(self):
+        if self.Wac =='':
+            self.Load_Wac()
+        
+        fig = plt.figure(figsize=(14,14))
+        ax1 = fig.add_subplot(111)
+        ax1.set_rasterization_zorder(1)
+        X,Y,Z = self.Wac.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        lon_m,lon_M,lat_m,lat_M = self.Wac.Lambert_Window(self.Taille_Window,self.Lat,self.Long)
+        m = Basemap(llcrnrlon =lon_m, llcrnrlat=lat_m, urcrnrlon=lon_M, urcrnrlat=lat_M,
+                    resolution='i',projection='laea',rsphere = 1734400, lat_0 = self.Lat,lon_0 = self.Long)
+        X,Y = m(X,Y)
+        m.pcolormesh(X,Y,Z,cmap = cm.gray ,ax  = ax1,zorder =-1)
+
+        return fig
+        
+    def plot_LROC(self):
+        if self.Wac =='':
+            self.Load_Wac()
+        
+        fig = plt.figure(figsize=(24,14))
+        ax1 = fig.add_subplot(111)
+        ax1.set_rasterization_zorder(1)
+        X,Y,Z = self.Wac.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        lon_m,lon_M,lat_m,lat_M = self.Wac.Lambert_Window(self.Taille_Window,self.Lat,self.Long)
+        m = Basemap(llcrnrlon =lon_m, llcrnrlat=lat_m, urcrnrlon=lon_M, urcrnrlat=lat_M,
+                    resolution='i',projection='laea',rsphere = 1734400, lat_0 = self.Lat,lon_0 = self.Long)
+        X,Y = m(X,Y)
+        m.pcolormesh(X,Y,Z,cmap = cm.gray ,ax  = ax1,zorder =-1)
+        
+        xc,yc = m(self.Long,self.Lat)
+        ax1.scatter(xc,yc,s=100,marker ='v',zorder =2)
+
+        return fig
+
+        
     def plot_LOLA(self):
 
         if self.Wac =='' or self.Lola == '':
@@ -439,7 +660,7 @@ class Crater(object):
         m = Basemap(llcrnrlon =lon_m, llcrnrlat=lat_m, urcrnrlon=lon_M, urcrnrlat=lat_M,
                     resolution='i',projection='laea',rsphere = 1734400, lat_0 = self.Lat,lon_0 = self.Long)
         X,Y = m(X,Y)
-        m.pcolor(X,Y,Z,cmap = cm.gray ,ax  = ax1,zorder =-1)
+        m.pcolormesh(X,Y,Z,cmap = cm.gray ,ax  = ax1,zorder =-1)
         Xl,Yl,Zl = self.Lola.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
         Xl,Yl = m(Xl,Yl)
         # m.pcolor(Xl,Yl,Zl,cmap='gist_earth', alpha = 0.3 ,zorder=-1)
@@ -459,10 +680,12 @@ class Crater(object):
                        fillcolor2='k', ax=ax1,
                        format='%d',
                        zorder=-1)
-        ax1.set_title('Dome %s, %d km in diameter'%(self.Name,self.Diameter),size = 24)
+        ax1.set_title('Crater %s, %d km in diameter'%(self.Name,self.Diameter),size = 24)
         Namefig = self.Name+'_'+str(self.Diameter)+'_Lola.eps'
         
         self.save_fig(Namefig,fig)
+
+        return fig
 
 
     def plot_GRAIL(self):
@@ -480,7 +703,7 @@ class Crater(object):
         m = Basemap(llcrnrlon =lon_m, llcrnrlat=lat_m, urcrnrlon=lon_M, urcrnrlat=lat_M,
                     resolution='i',projection='laea',rsphere = 1734400, lat_0 = self.Lat,lon_0 = self.Long)
         X,Y = m(X,Y)
-        m.pcolor(X,Y,Z,cmap = cm.gray ,ax  = ax1,zorder=-1)
+        m.pcolormesh(X,Y,Z,cmap = cm.gray ,ax  = ax1,zorder=-1)
         
         Xg,Yg,Zg = self.Grail.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
         clevs = np.arange(-50,50,5)
@@ -507,34 +730,7 @@ class Crater(object):
         Namefig = self.Name+'_'+str(self.Diameter)+'_Grail.eps'
         
         self.save_fig(Namefig,fig)
-        
-    def plot_tout(self,Wac,Grail,Lola):
-        fig = plt.figure(figsize=(24,14))
-        ax1 = fig.add_subplot(121)
-        X,Y,Z = Wac.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
-        lon_m,lon_M,lat_m,lat_M = Wac.Lambert_Window(self.Taille_Window,self.Lat,self.Long)
-        m = Basemap(llcrnrlon =lon_m, llcrnrlat=lat_m, urcrnrlon=lon_M, urcrnrlat=lat_M,
-                    resolution='i',projection='laea',rsphere = 1734400, lat_0 = self.Lat,lon_0 = self.Long)
-        X,Y = m(X,Y)
-        m.pcolor(X,Y,Z,cmap = cm.gray ,ax  = ax1)
-        Xl,Yl,Zl = Lola.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
-        Xl,Yl = m(Xl,Yl)
-        CS2 = m.contour(Xl,Yl,Zl,linewidths=0.5,colors='k',animated=True)
-        CS3 = m.contourf(Xl,Yl,Zl,cmap='gist_earth',animated=True , alpha = 0.1)
-        cb = m.colorbar(CS3,"right", size="5%", pad="2%")
-        cb.set_label('Topography', size = 24)
 
-        
-        ax2 = fig.add_subplot(122)
-        m.pcolor(X,Y,Z,cmap = cm.gray ,ax  = ax2)
-        Xg,Yg,Zg = Grail.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
-        clevs = np.arange(-100,100,10)
-        Xg,Yg = m(Xg,Yg)
-        CS2 = m.contour(Xg,Yg,Zg,clevs,linewidths=0.5,colors='k',animated=True)
-        CS3 = m.contourf(Xg,Yg,Zg,clevs,cmap=plt.cm.RdBu_r,animated=True , alpha = 0.3)
-        cb = m.colorbar(CS3,"right", size="5%", pad="2%")
-        cb.set_label('Gravity anomaly',size = 24)
-        
     def Deg(self,radius):
         return radius*360/(2*np.pi*1734.4)
 

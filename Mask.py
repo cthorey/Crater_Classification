@@ -105,6 +105,12 @@ for pix in [4,16,64]:
     df['Mask_Highlands'] = [not Maria.contains(Point(df.Long[i],df.Lat[i])) for i in range(len(df.Lat))]
     toc = time.time()
     print 'Mask_Highland', toc-tic
+
+    print 'index'
+    tic = time.time()
+    df['Index'] = range(len(df))
+    toc = time.time()
+    print 'index', toc-tic    
     
     data['feat_df'] = {k: np.array(v.values())[:,np.newaxis] for k,v in df.to_dict().iteritems()}
     with open(Output+'LOLA'+str(pix)+'_GRAIL_Dataset_2', 'wb') as fi:
