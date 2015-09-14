@@ -4,6 +4,7 @@ import numpy as np
 from Data_utils import *
 from Extract_Array import *
 
+import pylab
 from sys import platform as _platform
 import distutils.util
 import shutil
@@ -13,7 +14,7 @@ import datetime
 ##############################
 # Platform
 
-platform = 'laptop'
+platform = 'clavius'
 
 if _platform == "linux" or _platform == "linux2":
     racine = '/gpfs/users/thorey/Classification/'
@@ -23,7 +24,7 @@ elif _platform == "darwin":
     else:
         racine = '/Users/thorey/Documents/These/Projet/FFC/Classification/'
 
-data_path = os.path.join(root,'Data')
+data_path = os.path.join(racine,'Data')
 extraction_path = os.path.join(racine,'Data','ImageExtractionLROC')
 
 #Load data
@@ -42,19 +43,23 @@ tracker.write('Debut du feature extraction \n')
 tracker.close()
 
 for i,row in df.iterrows():
-    C = Crater(str(int(row.Index)),'i')
+    C = Crater(str(int(row.Index)),'i',racine)   
     try:
         fig = C.plot_LROC()
     except:
         df_LROC_Error.append(row)
         tracker = open('tracker_feature.txt','a')
-        tracker.write('Le crater %d a bugger'%(int(row.Index)))
-        tracker.write('Il rest encore %d crater'%(compteur))
+        tracker.write('Le crater %d a bugger \n'%(int(row.Index)))
+        tracker.write('Il rest encore %d crater \n'%(compteur))
         tracker.close()
         comtpeur -= 1
         continue
         
-    Name = 'C_'+str(row.Index)+'.jpg'
+    Name = 'C_'+str(int(row.Index))+'.png'
+    # On travaille avec ds png sinonb fonction pas
+    # sur clavius, juste rajoute une 4 eme depth qui
+    # correposnd a alpha que l'on enleve
+    
     fig.savefig(os.path.join(extraction_path,Name),
                 rasterized=True,
                 dpi=100,
@@ -62,8 +67,8 @@ for i,row in df.iterrows():
                 pad_inches=0.0)
     img = Image.open(os.path.join(extraction_path,Name))
     arr = np.array(img.resize((64,64),Image.ANTIALIAS))
-    I  = arr.reshape(64*64,3)
-    I2 = I.T.flatten()
+    I  = arr.reshape(64*64,4)
+    I2 = I.T[:,:-1].flatten()
     if i == 0:
         df_LROC = I2
     else:
@@ -72,9 +77,11 @@ for i,row in df.iterrows():
     tracker = open('tracker_feature.txt','a')
     tracker.write('Il rest encore %d crater'%(compteur))
     tracker.close()
-    comtpeur -= 1
+    compteur -= 1
 
-data['feat_LROC'] = df_LROC
-data['feat_LROC_Error'] = df_LROC_Error
-with open(Output+'LOLA'+str(pix)+'_GRAIL_Dataset_3', 'wb') as fi:
+data.data['feat_LROC'] = df_LROC
+data.data['feat_LROC_Error'] = df_LROC_Error
+
+Output = os.path.join(data_path,'LOLA'+str(64)+'_GRAIL_Dataset_3')
+with open(Output, 'wb') as fi:
     pickle.dump(data, fi, pickle.HIGHEST_PROTOCOL)

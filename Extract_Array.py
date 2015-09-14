@@ -4,7 +4,7 @@
 import numpy as np
 import pickle
 import pandas as pd
-import matplotlib.pylab as plt
+import pylab as plt
 from mpl_toolkits.basemap import Basemap
 import sys
 from planetaryimage import PDS3Image
@@ -296,14 +296,14 @@ class BinaryWACTable(PDS3Image,BinaryLolaTable):
             
 class Crater(object):
             
-    def __init__(self,ide,idx):
+    def __init__(self,ide,idx,racine):
         '''n pour le designer par son nom et i pour le designer par son
         index '''
 
+        self.racine = racine
         inde = {'n':'Name','i':'Index'}
         df = self.Crater_Data()
         df = df[df[inde[idx]] == ide]
-        print df
         if len(df) == 0:
             print 'Correpond a aucun crater'
             raise Exception
@@ -384,7 +384,7 @@ class Crater(object):
         lonf,lonc = self._format_lon(lon)
         latf,latc = self._format_lat(lat)
         wac = 'WAC_GLOBAL_E'+latc+lonc+'_128P.IMG'
-        f = os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification','PDS_FILE','LROC_WAC',wac)
+        f = os.path.join(self.racine,'PDS_FILE','LROC_WAC',wac)
         self.Wac = BinaryWACTable(f)
 
     def Cas_2(self,lon_m,lon_M,lat):
@@ -395,7 +395,7 @@ class Crater(object):
         lonMf,lonM = self._format_lon(lon_M)
         latf,latc = self._format_lat(lat)
         
-        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+        Wac = BinaryWACTable(os.path.join(self.racine,
                            'PDS_FILE',
                            'LROC_WAC',
                            'WAC_GLOBAL_E'+latc+lonm+'_128P.IMG'))
@@ -408,7 +408,7 @@ class Crater(object):
         Z_left_new = Wac_left.Z[mask_left].reshape((SizeY_left,SizeX_left))
         del Wac,Wac_left
         
-        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+        Wac = BinaryWACTable(os.path.join(self.racine,
                                           'PDS_FILE',
                                           'LROC_WAC',
                                           'WAC_GLOBAL_E'+latc+lonM+'_128P.IMG'))
@@ -433,7 +433,7 @@ class Crater(object):
         latmf,latm = self._format_lat(lat_m)
         latMf,latM = self._format_lat(lat_M)
         
-        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+        Wac = BinaryWACTable(os.path.join(self.racine,
                                           'PDS_FILE',
                                           'LROC_WAC',
                                           'WAC_GLOBAL_E'+latm+lonc+'_128P.IMG'))
@@ -447,7 +447,7 @@ class Crater(object):
         Z_bot_new = Wac_bot.Z[mask_bot].reshape((SizeY_bot,SizeX_bot))
         del Wac,Wac_bot
         
-        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+        Wac = BinaryWACTable(os.path.join(self.racine,
                                           'PDS_FILE',
                                           'LROC_WAC',
                                           'WAC_GLOBAL_E'+latM+lonc+'_128P.IMG'))
@@ -477,7 +477,7 @@ class Crater(object):
         latMf,latM = self._format_lat(lat_M)
 
         # Carre haut gauche 00
-        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+        Wac = BinaryWACTable(os.path.join(self.racine,
                                           'PDS_FILE',
                                           'LROC_WAC',
                                           'WAC_GLOBAL_E'+latM+lonm+'_128P.IMG'))
@@ -497,7 +497,7 @@ class Crater(object):
         del Wac00,Wac
         
         # Carre Haut droit 01
-        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+        Wac = BinaryWACTable(os.path.join(self.racine,
                                           'PDS_FILE',
                                           'LROC_WAC',
                                           'WAC_GLOBAL_E'+latM+lonM+'_128P.IMG'))
@@ -515,7 +515,7 @@ class Crater(object):
         del Wac01,Wac
         
         # Carre bas gauche 10
-        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+        Wac = BinaryWACTable(os.path.join(self.racine,
                                           'PDS_FILE',
                                           'LROC_WAC',
                                           'WAC_GLOBAL_E'+latm+lonm+'_128P.IMG'))
@@ -533,7 +533,7 @@ class Crater(object):
         del Wac10,Wac
         
         # Carre bas gauche 11
-        Wac = BinaryWACTable(os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification',
+        Wac = BinaryWACTable(os.path.join(self.racine,
                                           'PDS_FILE',
                                           'LROC_WAC',
                                           'WAC_GLOBAL_E'+latm+lonM+'_128P.IMG'))
@@ -566,17 +566,17 @@ class Crater(object):
 
     def Load_Lola(self,name):
             
-        f = os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification','PDS_FILE','Lola',name)
+        f = os.path.join(self.racine,'PDS_FILE','Lola',name)
         self.Lola = BinaryLolaTable(f)
 
     def Load_Grail(self,name):
             
-        f = os.path.join('/Users/thorey/Documents/These/Projet/FFC/Classification','PDS_FILE','Grail',name)
+        f = os.path.join(self.racine,'PDS_FILE','Grail',name)
         self.Grail = BinaryGrailTable(f)
 
         
     def Crater_Data(self):
-        Racine = '/Users/thorey/Documents/These/Projet/FFC/Classification/Data'
+        Racine = os.path.join(self.racine,'Data')
         data = Data(64,Racine,'_2')
         df = pd.DataFrame(np.hstack((data.Name,data.Index,data.Lat,data.Long,data.Diameter))
                           ,columns = ['Name','Index','Lat','Long','Diameter'])

@@ -2,7 +2,6 @@ import cPickle as pickle
 import numpy as np
 import seaborn as sns
 import matplotlib.pylab as plt
-from sklearn import *
 
 
 class Data(object):
