@@ -9,6 +9,7 @@ from sys import platform as _platform
 import distutils.util
 import shutil
 import datetime
+import matplotlib as mpl 
 
     
 ##############################
@@ -36,13 +37,19 @@ df_LROC = 0 # Contient les pixel
 df_LROC_Error = []
 
 # Thrreshold to black
+
+def m_initialize_mpl():
+    mpl.rcdefaults()
+    mpl.rcParams['figure.facecolor'] = 'w'
+    mpl.rcParams['lines.linewidth'] =1.5
 def is_White(x):
     if x == 255:
         return 0
     else:
         return x
 f = np.vectorize(is_White, otypes=[np.uint8])
-        
+
+m_initialize_mpl()
 # compteur
 compteur_init = len(df)
 compteur =  compteur_init
