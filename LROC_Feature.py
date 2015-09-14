@@ -35,6 +35,14 @@ df = pd.DataFrame(np.hstack((data.Index,data.Lat,data.Long,data.Diameter)),
 df_LROC = 0 # Contient les pixel 
 df_LROC_Error = []
 
+# Thrreshold to black
+def is_White(x):
+    if x == 255:
+        return 0
+    else:
+        return x
+f = np.vectorize(is_White, otypes=[np.uint8])
+        
 # compteur
 compteur_init = len(df)
 compteur =  compteur_init
@@ -65,17 +73,19 @@ for i,row in df.iterrows():
                 dpi=100,
                 bbox_inches='tight',
                 pad_inches=0.0)
+    plt.close()
     img = Image.open(os.path.join(extraction_path,Name))
+    img = Image.fromarray(f(np.array(img)[:,:,:-1]))
     arr = np.array(img.resize((64,64),Image.ANTIALIAS))
-    I  = arr.reshape(64*64,4)
-    I2 = I.T[:,:-1].flatten()
+    I  = arr.reshape(64*64,3)
+    I2 = I.T.flatten()
     if i == 0:
         df_LROC = I2
     else:
         df_LROC = np.vstack((df_LROC,I2))
 
     tracker = open('tracker_feature.txt','a')
-    tracker.write('Il rest encore %d crater'%(compteur))
+    tracker.write('Il rest encore %d crater \n'%(compteur))
     tracker.close()
     compteur -= 1
 
