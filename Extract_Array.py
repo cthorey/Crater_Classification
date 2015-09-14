@@ -640,9 +640,6 @@ class Crater(object):
         X,Y = m(X,Y)
         m.pcolormesh(X,Y,Z,cmap = cm.gray ,ax  = ax1,zorder =-1)
         
-        xc,yc = m(self.Long,self.Lat)
-        ax1.scatter(xc,yc,s=100,marker ='v',zorder =2)
-
         return fig
 
         

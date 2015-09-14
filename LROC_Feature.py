@@ -57,6 +57,7 @@ tracker = open('tracker_feature.txt','wr+')
 tracker.write('Debut du feature extraction \n')
 tracker.close()
 
+df = df[df.Index == 6]
 for i,row in df.iterrows():
     C = Crater(str(int(row.Index)),'i',racine)   
     try:
@@ -79,8 +80,11 @@ for i,row in df.iterrows():
                 rasterized=True,
                 dpi=100,
                 bbox_inches='tight',
-                pad_inches=0.0)
+                pad_inches=0.0,
+                facecolor='w',
+                edgecolor='w')
     plt.close()
+    sys.exit()
     img = Image.open(os.path.join(extraction_path,Name))
     img = Image.fromarray(f(np.array(img)[:,:,:-1]))
     arr = np.array(img.resize((64,64),Image.ANTIALIAS))
