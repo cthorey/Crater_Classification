@@ -639,7 +639,8 @@ class Crater(object):
                     resolution='i',projection='laea',rsphere = 1734400, lat_0 = self.Lat,lon_0 = self.Long)
         X,Y = m(X,Y)
         m.pcolormesh(X,Y,Z,cmap = cm.gray ,ax  = ax1,zorder =-1)
-        
+
+        plt.close(fig)
         return fig
 
         
