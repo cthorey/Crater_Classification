@@ -25,7 +25,7 @@ import pickle
 
 # Which platform
 
-platform = 'laptop'
+platform = 'clavius'
 
 if platform == 'clavius':
     racine = '/Users/clement/Classification/'
@@ -320,9 +320,10 @@ input_dim = X_train.shape[1]
 output_dim = 2
 
 reg_inf = -4;reg_sup = 0
-neuron = [32,64,128,256]
+neuron = [32,64,128,256,512]
 optimizer = ['adam','RMSprop']
 worker = 1
+
 while worker != 0:
     reg = 10**(uniform(reg_inf,reg_sup))
     nn = neuron[randint(len(neuron))]
@@ -341,7 +342,7 @@ while worker != 0:
     roc_val = history.roc_val[-1]
     f1_sc = history.f1_val[-1]
     print roc_val,f1_sc
-    if roc_val>0.8 and f1_sc>0.1 :
+    if roc_val>=0.8 and f1_sc >0.1 :
         name_model = 'NN_ROC-%1.3f_f1-%1.3f'%(roc_val,f1_sc)
         name = os.path.join(rep_bm_nn,name_model)
         model.save_weights(name+".h5")
@@ -354,5 +355,6 @@ while worker != 0:
         with open(name, 'wb') as fi:
             pickle.dump(model_pickle, fi, pickle.HIGHEST_PROTOCOL)
         worker = 0
+
 
     
