@@ -9,6 +9,7 @@ from sys import platform as _platform
 import distutils.util
 import shutil
 import datetime
+import matplotlib as mpl 
 
     
 ##############################
@@ -36,13 +37,19 @@ df_LROC = 0 # Contient les pixel
 df_LROC_Error = []
 
 # Thrreshold to black
+
+def m_initialize_mpl():
+    mpl.rcdefaults()
+    mpl.rcParams['figure.facecolor'] = 'w'
+    mpl.rcParams['lines.linewidth'] =1.5
 def is_White(x):
     if x == 255:
         return 0
     else:
         return x
 f = np.vectorize(is_White, otypes=[np.uint8])
-        
+
+m_initialize_mpl()
 # compteur
 compteur_init = len(df)
 compteur =  compteur_init
@@ -50,32 +57,40 @@ tracker = open('tracker_feature.txt','wr+')
 tracker.write('Debut du feature extraction \n')
 tracker.close()
 
+# Image deja calcule
+
 for i,row in df.iterrows():
-    C = Crater(str(int(row.Index)),'i',racine)   
-    try:
-        fig = C.plot_LROC()
-    except:
-        df_LROC_Error.append(row)
-        tracker = open('tracker_feature.txt','a')
-        tracker.write('Le crater %d a bugger \n'%(int(row.Index)))
-        tracker.write('Il rest encore %d crater \n'%(compteur))
-        tracker.close()
-        comtpeur -= 1
-        continue
-        
     Name = 'C_'+str(int(row.Index))+'.png'
-    # On travaille avec ds png sinonb fonction pas
-    # sur clavius, juste rajoute une 4 eme depth qui
-    # correposnd a alpha que l'on enleve
+    if not Name in os.listdir(extraction_path):
+        C = Crater(str(int(row.Index)),'i',racine)   
+        try:
+            fig = C.plot_LROC()
+        except:
+            df_LROC_Error.append(row)
+            tracker = open('tracker_feature.txt','a')
+            tracker.write('Le crater %d a bugger \n'%(int(row.Index)))
+            tracker.write('Il rest encore %d crater \n'%(compteur))
+            tracker.close()
+            comtpeur -= 1
+            continue
+        
+        # On travaille avec ds png sinonb fonction pas
+        # sur clavius, juste rajoute une 4 eme depth qui
+        # correposnd a alpha que l'on enleve
     
-    fig.savefig(os.path.join(extraction_path,Name),
-                rasterized=True,
-                dpi=100,
-                bbox_inches='tight',
-                pad_inches=0.0)
-    plt.close()
-    img = Image.open(os.path.join(extraction_path,Name))
-    img = Image.fromarray(f(np.array(img)[:,:,:-1]))
+        fig.savefig(os.path.join(extraction_path,Name),
+                    rasterized=True,
+                    dpi=100,
+                    bbox_inches='tight',
+                    pad_inches=0.0,
+                    facecolor='w',
+                    edgecolor='w')
+        plt.close(fig)
+        img = Image.open(os.path.join(extraction_path,Name))
+        img = Image.fromarray(f(np.array(img)[:,:,:-1]))
+        img.save(os.path.join(extraction_path,Name))
+    else:
+        img = Image.open(os.path.join(extraction_path,Name))
     arr = np.array(img.resize((64,64),Image.ANTIALIAS))
     I  = arr.reshape(64*64,3)
     I2 = I.T.flatten()
@@ -88,6 +103,7 @@ for i,row in df.iterrows():
     tracker.write('Il rest encore %d crater \n'%(compteur))
     tracker.close()
     compteur -= 1
+    del img
 
 data.data['feat_LROC'] = df_LROC
 data.data['feat_LROC_Error'] = df_LROC_Error
