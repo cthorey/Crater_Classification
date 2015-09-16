@@ -308,13 +308,13 @@ class Crater(object):
             print 'Correpond a aucun crater'
             raise Exception
         [setattr(self,f,float(df[f])) for f in df.columns if f not in ['Name','Index']]
-        self.Taille_Window = 0.6*self.Diameter
+        self.Taille_Window = 0.8*self.Diameter
         if self.Long <0.0:
-          self.Long = 360+self.Long
+            self.Long = 360+self.Long
 
+        self.Name = df.Name.tolist()[0]
         self.Wac = ''
-        #self.Load_Wac('128')
-        #self.Load_Lola('ldem_16')
+        self.Load_Lola('ldem_16')
         #self.Load_Grail('34_12_3220_900_80_misfit_rad')
         
     def Cylindrical_Window(self,radius,lat0,long0):
@@ -645,9 +645,10 @@ class Crater(object):
         
     def plot_LOLA(self):
 
-        if self.Wac =='' or self.Lola == '':
-            print 'load a wac and lola FIRSTTTT'
-            sys.exit()
+        print 'heloo'
+        self.Load_Wac()
+        if self.Lola == '':
+            self.Load_Lola('ldem_16')
         
         fig = plt.figure(figsize=(24,14))
         ax1 = fig.add_subplot(111)
@@ -677,7 +678,7 @@ class Crater(object):
                        fillcolor2='k', ax=ax1,
                        format='%d',
                        zorder=-1)
-        ax1.set_title('Crater %s, %d km in diameter'%(self.Name,self.Diameter),size = 24)
+        ax1.set_title('FFC %s, %d km in diameter'%(self.Name,self.Diameter),size = 42)
         Namefig = self.Name+'_'+str(self.Diameter)+'_Lola.eps'
         
         self.save_fig(Namefig,fig)
