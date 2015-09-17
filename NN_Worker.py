@@ -328,7 +328,8 @@ while worker != 0:
     reg = 10**(uniform(reg_inf,reg_sup))
     nn = neuron[randint(len(neuron))]
     opt = optimizer[randint(len(optimizer))]
-    
+
+    print reg,nn,opt
     # build model 
     model = build_model(input_dim, output_dim,nn,reg,opt)
 
@@ -354,7 +355,6 @@ while worker != 0:
                         'f1': f1_sc}
         with open(name, 'wb') as fi:
             pickle.dump(model_pickle, fi, pickle.HIGHEST_PROTOCOL)
-        worker = 0
 
 
     
