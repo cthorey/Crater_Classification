@@ -110,4 +110,4 @@ data.data['feat_LROC_Error'] = df_LROC_Error
 
 Output = os.path.join(data_path,'LOLA'+str(64)+'_GRAIL_Dataset_3')
 with open(Output, 'wb') as fi:
-    pickle.dump(data, fi, pickle.HIGHEST_PROTOCOL)
+    pickle.dump(data.data, fi, pickle.HIGHEST_PROTOCOL)
