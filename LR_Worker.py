@@ -17,6 +17,7 @@ from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from keras.utils import np_utils
+from numpy.random import randint
 
 from Data_utils import *
 from sklearn.cross_validation import train_test_split
@@ -266,14 +267,21 @@ best_val = 0
 
 kf = KFold(len(X_trainDF),5,shuffle=True,random_state=55)
 
-while compteur <2:
+while compteur <1:
     print compteur
     C = 10**(uniform(-6,-2))
     p = uniform(3,6)
+    npca = randint(30)
+    
     which_feature = {k:int(proba.random()) for k in Feature.transformer_weights.keys()}
     which_feature['HOGFeature'] = 1
     which_feature['SobelFeature'] = 1
     Feature.transformer_weights = which_feature
+    param = {'SobelFeature__PCA__n_components':npca,
+             'RawImage__PCA__n_components':npca,
+             'HOGFeature__PCA__n_components':npca}
+    Feature.set_params(**param)
+    
     scores = []; rocauctr = []; rocaucval = []
     print 'Debut cross-validation'
     for train_index, val_index in kf:
@@ -293,8 +301,10 @@ while compteur <2:
         scores.append(stats)
         rocauctr.append(stats['roc-train'])
         rocaucval.append(stats['roc-val'])
-    print 'le Roc auc est de %f'%(np.array(rocaucval).mean())
-    if np.array(rocaucval).mean()> best_val:
+    rocval = np.array(rocaucval).mean()
+    print 'le Roc auc est de %f'%(rocval)
+
+    if rocval>= 0.8:
         X_train = Feature.fit_transform(X_trainDF)
         y_train = np.array(y_trainDF)[:,np.newaxis]
         model.fit(X_train,y_train.ravel())
