@@ -27,6 +27,7 @@ import pickle
 
 # Which platform
 
+Iteration = 1e6
 platform = 'laptop'
 
 if platform == 'clavius':
@@ -267,7 +268,7 @@ best_val = 0
 
 kf = KFold(len(X_trainDF),5,shuffle=True,random_state=55)
 
-while compteur <1:
+while compteur < Iteration:
     print compteur
     C = 10**(uniform(-6,-2))
     p = uniform(3,6)
