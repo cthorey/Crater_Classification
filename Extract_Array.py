@@ -11,6 +11,7 @@ from planetaryimage import PDS3Image
 from matplotlib import cm
 import os
 from Data_utils import *
+from palettable.colorbrewer.diverging import RdBu_9_r
 
         
 class BinaryLolaTable(object):
@@ -165,7 +166,7 @@ class BinaryLolaTable(object):
         phi0 = lat0*np.pi/180.0
         phi = Y*np.pi/180.0
         radi = radius*2*np.pi/(2*1734.4*np.pi)        
-        mask = (lamb-lamb0)**2*np.cos(phi0)**2+(np.sin(phi)/np.cos(phi0)-np.sin(phi0)/np.cos(phi0))**2<= (radi)**2
+        mask = (lamb-lamb0)**2*np.cos(phi0)**2+(np.sin(phi)/np.cos(phi0)-np.sin(phi0)/np.cos(phi0))**2 <= (radi)**2
         return mask,Z[mask],Z[~mask]
     
     def Couronne_Mask(self,radius_int,radius_ext,lat0,long0):
@@ -643,6 +644,52 @@ class Crater(object):
         plt.close(fig)
         return fig
 
+    def plot_LOLA_Alone(self):
+        self.Load_Lola('ldem_16')
+            
+        fig = plt.figure(figsize=(24,14))
+        ax1 = fig.add_subplot(111)
+        ax1.set_rasterization_zorder(1)
+        X,Y,Z = self.Lola.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        lon_m,lon_M,lat_m,lat_M = self.Lola.Lambert_Window(self.Taille_Window,self.Lat,self.Long)
+        m = Basemap(llcrnrlon =lon_m, llcrnrlat=lat_m, urcrnrlon=lon_M, urcrnrlat=lat_M,
+                    resolution='i',projection='laea',rsphere = 1734400, lat_0 = self.Lat,lon_0 = self.Long)
+        X,Y = m(X,Y)
+        CS = m.pcolormesh(X,Y,Z,cmap = 'gist_earth' ,ax  = ax1,zorder =-1,shading='gouraud')
+        cb = m.colorbar(CS,"right", size="5%", pad="2%")
+        cb.set_label('Topography (m)',size = 24)
+
+        xc,yc = m(self.Long,self.Lat)
+        ax1.scatter(xc,yc,s=100,marker ='v',zorder =2)
+
+        plt.close(fig)
+        return fig
+
+    def plot_GRAIL_Alone(self):
+        self.Load_Grail('34_12_3220_900_80_misfit_rad')
+            
+        fig = plt.figure(figsize=(24,14))
+        ax1 = fig.add_subplot(111)
+        ax1.set_rasterization_zorder(1)
+        X,Y,Z = self.Grail.Extract_Grid(self.Taille_Window,self.Lat,self.Long)
+        lon_m,lon_M,lat_m,lat_M = self.Grail.Lambert_Window(self.Taille_Window,self.Lat,self.Long)
+        m = Basemap(llcrnrlon =lon_m, llcrnrlat=lat_m, urcrnrlon=lon_M, urcrnrlat=lat_M,
+                    resolution='i',projection='laea',rsphere = 1734400, lat_0 = self.Lat,lon_0 = self.Long)
+        X,Y = m(X,Y)
+        CS = m.pcolormesh(X,Y,Z,cmap = RdBu_9_r.mpl_colormap ,
+                          ax  = ax1,
+                          vmin = -50,
+                          vmax = 50,
+                          shading='gouraud',
+                          zorder =-1)
+        cb = m.colorbar(CS,"right", size="5%", pad="2%")
+        cb.set_label('Gravity anomaly (mGal)',size = 24)
+
+        xc,yc = m(self.Long,self.Lat)
+        ax1.scatter(xc,yc,s=100,marker ='v',zorder =2)
+
+        plt.close(fig)
+        return fig
         
     def plot_LOLA(self):
 
