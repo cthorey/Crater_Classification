@@ -305,6 +305,7 @@ class Crater(object):
         inde = {'n':'Name','i':'Index'}
         df = self.Crater_Data()
         df = df[df[inde[idx]] == ide]
+        self.Index = df.Index
         if len(df) == 0:
             print 'Correpond a aucun crater'
             raise Exception
@@ -691,7 +692,7 @@ class Crater(object):
         plt.close(fig)
         return fig
         
-    def plot_LOLA(self):
+    def plot_LOLA(self,save):
 
         print 'heloo'
         self.Load_Wac()
@@ -727,11 +728,11 @@ class Crater(object):
                        format='%d',
                        zorder=-1)
         ax1.set_title('FFC %s, %d km in diameter'%(self.Name,self.Diameter),size = 42)
-        Namefig = self.Name+'_'+str(self.Diameter)+'_Lola.eps'
+        path = os.path.join(self.racine,'Data','LolaImage','Crater_'+str(self.Index)+'.png')
+        if save == True:
+            fig.savefig(path,rasterized=True, dpi=100,bbox_inches='tight',pad_inches=0.1)
+        plt.close(fig)
         
-        self.save_fig(Namefig,fig)
-
-        return fig
 
 
     def plot_GRAIL(self):

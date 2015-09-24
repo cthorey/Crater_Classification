@@ -1,0 +1,1127 @@
+On restreint au crater larger than 20 km
+On restreint au crater proche des FFCs
+La taille de X_train est de (855,13503) elements
+La taille de y_train est de (855) elements
+Le nombre de  FFC dans le train est de 79
+La proportion de FFC dans le train est de 0.215259
+------------------------------------------------------------
+La taille de X_test est de (367,13503) elements
+La taille de y_test est de (367) elements
+Le nombre de  FFC dans le train est de 37
+Le proportion de FFC dans le test est de 0.100817
+0
+Debut cross-validation
+le Roc auc est de 0.755162
+1
+Debut cross-validation
+le Roc auc est de 0.743019
+2
+Debut cross-validation
+le Roc auc est de 0.747103
+3
+Debut cross-validation
+le Roc auc est de 0.761559
+4
+Debut cross-validation
+le Roc auc est de 0.773847
+5
+Debut cross-validation
+le Roc auc est de 0.767176
+6
+Debut cross-validation
+le Roc auc est de 0.787970
+7
+Debut cross-validation
+le Roc auc est de 0.732571
+8
+Debut cross-validation
+le Roc auc est de 0.767197
+9
+Debut cross-validation
+le Roc auc est de 0.776652
+10
+Debut cross-validation
+le Roc auc est de 0.754511
+11
+Debut cross-validation
+le Roc auc est de 0.752528
+12
+Debut cross-validation
+le Roc auc est de 0.750961
+13
+Debut cross-validation
+le Roc auc est de 0.736130
+14
+Debut cross-validation
+le Roc auc est de 0.735489
+15
+Debut cross-validation
+le Roc auc est de 0.752195
+16
+Debut cross-validation
+le Roc auc est de 0.753940
+17
+Debut cross-validation
+le Roc auc est de 0.753496
+18
+Debut cross-validation
+le Roc auc est de 0.733436
+19
+Debut cross-validation
+le Roc auc est de 0.720402
+20
+Debut cross-validation
+le Roc auc est de 0.770548
+21
+Debut cross-validation
+le Roc auc est de 0.732283
+22
+Debut cross-validation
+le Roc auc est de 0.755913
+23
+Debut cross-validation
+le Roc auc est de 0.756037
+24
+Debut cross-validation
+le Roc auc est de 0.739361
+25
+Debut cross-validation
+le Roc auc est de 0.720566
+26
+Debut cross-validation
+le Roc auc est de 0.748754
+27
+Debut cross-validation
+le Roc auc est de 0.770661
+28
+Debut cross-validation
+le Roc auc est de 0.732903
+29
+Debut cross-validation
+le Roc auc est de 0.728849
+30
+Debut cross-validation
+le Roc auc est de 0.757034
+31
+Debut cross-validation
+le Roc auc est de 0.732438
+32
+Debut cross-validation
+le Roc auc est de 0.753892
+33
+Debut cross-validation
+le Roc auc est de 0.745453
+34
+Debut cross-validation
+le Roc auc est de 0.745087
+35
+Debut cross-validation
+le Roc auc est de 0.756017
+36
+Debut cross-validation
+le Roc auc est de 0.776052
+37
+Debut cross-validation
+le Roc auc est de 0.745239
+38
+Debut cross-validation
+le Roc auc est de 0.767782
+39
+Debut cross-validation
+le Roc auc est de 0.755457
+40
+Debut cross-validation
+le Roc auc est de 0.733352
+41
+Debut cross-validation
+le Roc auc est de 0.742246
+42
+Debut cross-validation
+le Roc auc est de 0.760820
+43
+Debut cross-validation
+le Roc auc est de 0.750292
+44
+Debut cross-validation
+le Roc auc est de 0.779419
+45
+Debut cross-validation
+le Roc auc est de 0.731498
+46
+Debut cross-validation
+le Roc auc est de 0.743503
+47
+Debut cross-validation
+le Roc auc est de 0.738168
+48
+Debut cross-validation
+le Roc auc est de 0.754433
+49
+Debut cross-validation
+le Roc auc est de 0.761277
+50
+Debut cross-validation
+le Roc auc est de 0.748443
+51
+Debut cross-validation
+le Roc auc est de 0.725854
+52
+Debut cross-validation
+le Roc auc est de 0.772570
+53
+Debut cross-validation
+le Roc auc est de 0.757292
+54
+Debut cross-validation
+le Roc auc est de 0.761300
+55
+Debut cross-validation
+le Roc auc est de 0.760978
+56
+Debut cross-validation
+le Roc auc est de 0.767360
+57
+Debut cross-validation
+le Roc auc est de 0.768993
+58
+Debut cross-validation
+le Roc auc est de 0.733534
+59
+Debut cross-validation
+le Roc auc est de 0.721702
+60
+Debut cross-validation
+le Roc auc est de 0.745924
+61
+Debut cross-validation
+le Roc auc est de 0.770488
+62
+Debut cross-validation
+le Roc auc est de 0.750942
+63
+Debut cross-validation
+le Roc auc est de 0.734450
+64
+Debut cross-validation
+le Roc auc est de 0.755361
+65
+Debut cross-validation
+le Roc auc est de 0.735569
+66
+Debut cross-validation
+le Roc auc est de 0.787364
+67
+Debut cross-validation
+le Roc auc est de 0.747943
+68
+Debut cross-validation
+le Roc auc est de 0.788823
+69
+Debut cross-validation
+le Roc auc est de 0.746813
+70
+Debut cross-validation
+le Roc auc est de 0.728408
+71
+Debut cross-validation
+le Roc auc est de 0.749319
+72
+Debut cross-validation
+le Roc auc est de 0.787999
+73
+Debut cross-validation
+le Roc auc est de 0.738038
+74
+Debut cross-validation
+le Roc auc est de 0.717256
+75
+Debut cross-validation
+le Roc auc est de 0.780136
+76
+Debut cross-validation
+le Roc auc est de 0.756540
+77
+Debut cross-validation
+le Roc auc est de 0.736333
+78
+Debut cross-validation
+le Roc auc est de 0.758600
+79
+Debut cross-validation
+le Roc auc est de 0.785262
+80
+Debut cross-validation
+le Roc auc est de 0.734591
+81
+Debut cross-validation
+le Roc auc est de 0.752234
+82
+Debut cross-validation
+le Roc auc est de 0.718176
+83
+Debut cross-validation
+le Roc auc est de 0.767016
+84
+Debut cross-validation
+le Roc auc est de 0.744326
+85
+Debut cross-validation
+le Roc auc est de 0.752956
+86
+Debut cross-validation
+le Roc auc est de 0.734637
+87
+Debut cross-validation
+le Roc auc est de 0.745280
+88
+Debut cross-validation
+le Roc auc est de 0.758412
+89
+Debut cross-validation
+le Roc auc est de 0.739929
+90
+Debut cross-validation
+le Roc auc est de 0.742069
+91
+Debut cross-validation
+le Roc auc est de 0.780936
+92
+Debut cross-validation
+le Roc auc est de 0.752329
+93
+Debut cross-validation
+le Roc auc est de 0.713714
+94
+Debut cross-validation
+le Roc auc est de 0.748750
+95
+Debut cross-validation
+le Roc auc est de 0.738331
+96
+Debut cross-validation
+le Roc auc est de 0.734500
+97
+Debut cross-validation
+le Roc auc est de 0.745178
+98
+Debut cross-validation
+le Roc auc est de 0.780067
+99
+Debut cross-validation
+le Roc auc est de 0.749693
+100
+Debut cross-validation
+le Roc auc est de 0.760522
+101
+Debut cross-validation
+le Roc auc est de 0.720875
+102
+Debut cross-validation
+le Roc auc est de 0.696874
+103
+Debut cross-validation
+le Roc auc est de 0.788444
+104
+Debut cross-validation
+le Roc auc est de 0.756884
+105
+Debut cross-validation
+le Roc auc est de 0.807463
+106
+Debut cross-validation
+le Roc auc est de 0.739192
+107
+Debut cross-validation
+le Roc auc est de 0.762252
+108
+Debut cross-validation
+le Roc auc est de 0.774107
+109
+Debut cross-validation
+le Roc auc est de 0.779063
+110
+Debut cross-validation
+le Roc auc est de 0.715990
+111
+Debut cross-validation
+le Roc auc est de 0.732514
+112
+Debut cross-validation
+le Roc auc est de 0.737968
+113
+Debut cross-validation
+le Roc auc est de 0.744024
+114
+Debut cross-validation
+le Roc auc est de 0.737253
+115
+Debut cross-validation
+le Roc auc est de 0.749538
+116
+Debut cross-validation
+le Roc auc est de 0.786624
+117
+Debut cross-validation
+le Roc auc est de 0.737965
+118
+Debut cross-validation
+le Roc auc est de 0.752039
+119
+Debut cross-validation
+le Roc auc est de 0.771501
+120
+Debut cross-validation
+le Roc auc est de 0.753765
+121
+Debut cross-validation
+le Roc auc est de 0.753213
+122
+Debut cross-validation
+le Roc auc est de 0.737055
+123
+Debut cross-validation
+le Roc auc est de 0.744743
+124
+Debut cross-validation
+le Roc auc est de 0.762540
+125
+Debut cross-validation
+le Roc auc est de 0.762478
+126
+Debut cross-validation
+le Roc auc est de 0.725011
+127
+Debut cross-validation
+le Roc auc est de 0.762094
+128
+Debut cross-validation
+le Roc auc est de 0.751160
+129
+Debut cross-validation
+le Roc auc est de 0.768589
+130
+Debut cross-validation
+le Roc auc est de 0.744027
+131
+Debut cross-validation
+le Roc auc est de 0.749129
+132
+Debut cross-validation
+le Roc auc est de 0.721133
+133
+Debut cross-validation
+le Roc auc est de 0.784256
+134
+Debut cross-validation
+le Roc auc est de 0.754225
+135
+Debut cross-validation
+le Roc auc est de 0.739868
+136
+Debut cross-validation
+le Roc auc est de 0.780928
+137
+Debut cross-validation
+le Roc auc est de 0.754681
+138
+Debut cross-validation
+le Roc auc est de 0.783008
+139
+Debut cross-validation
+le Roc auc est de 0.737914
+140
+Debut cross-validation
+le Roc auc est de 0.755498
+141
+Debut cross-validation
+le Roc auc est de 0.743153
+142
+Debut cross-validation
+le Roc auc est de 0.737191
+143
+Debut cross-validation
+le Roc auc est de 0.784230
+144
+Debut cross-validation
+le Roc auc est de 0.740220
+145
+Debut cross-validation
+le Roc auc est de 0.795296
+146
+Debut cross-validation
+le Roc auc est de 0.712870
+147
+Debut cross-validation
+le Roc auc est de 0.760578
+148
+Debut cross-validation
+le Roc auc est de 0.759430
+149
+Debut cross-validation
+le Roc auc est de 0.734101
+150
+Debut cross-validation
+le Roc auc est de 0.738061
+151
+Debut cross-validation
+le Roc auc est de 0.777656
+152
+Debut cross-validation
+le Roc auc est de 0.768883
+153
+Debut cross-validation
+le Roc auc est de 0.755085
+154
+Debut cross-validation
+le Roc auc est de 0.756747
+155
+Debut cross-validation
+le Roc auc est de 0.742345
+156
+Debut cross-validation
+le Roc auc est de 0.745440
+157
+Debut cross-validation
+le Roc auc est de 0.755220
+158
+Debut cross-validation
+le Roc auc est de 0.737619
+159
+Debut cross-validation
+le Roc auc est de 0.734378
+160
+Debut cross-validation
+le Roc auc est de 0.757271
+161
+Debut cross-validation
+le Roc auc est de 0.777882
+162
+Debut cross-validation
+le Roc auc est de 0.771995
+163
+Debut cross-validation
+le Roc auc est de 0.759851
+164
+Debut cross-validation
+le Roc auc est de 0.755400
+165
+Debut cross-validation
+le Roc auc est de 0.744842
+166
+Debut cross-validation
+le Roc auc est de 0.730027
+167
+Debut cross-validation
+le Roc auc est de 0.778101
+168
+Debut cross-validation
+le Roc auc est de 0.737349
+169
+Debut cross-validation
+le Roc auc est de 0.722468
+170
+Debut cross-validation
+le Roc auc est de 0.762452
+171
+Debut cross-validation
+le Roc auc est de 0.766027
+172
+Debut cross-validation
+le Roc auc est de 0.749343
+173
+Debut cross-validation
+le Roc auc est de 0.772468
+174
+Debut cross-validation
+le Roc auc est de 0.743575
+175
+Debut cross-validation
+le Roc auc est de 0.759938
+176
+Debut cross-validation
+le Roc auc est de 0.752802
+177
+Debut cross-validation
+le Roc auc est de 0.730580
+178
+Debut cross-validation
+le Roc auc est de 0.765201
+179
+Debut cross-validation
+le Roc auc est de 0.769363
+180
+Debut cross-validation
+le Roc auc est de 0.727129
+181
+Debut cross-validation
+le Roc auc est de 0.763360
+182
+Debut cross-validation
+le Roc auc est de 0.742823
+183
+Debut cross-validation
+le Roc auc est de 0.743603
+184
+Debut cross-validation
+le Roc auc est de 0.745180
+185
+Debut cross-validation
+le Roc auc est de 0.736170
+186
+Debut cross-validation
+le Roc auc est de 0.743095
+187
+Debut cross-validation
+le Roc auc est de 0.734502
+188
+Debut cross-validation
+le Roc auc est de 0.737452
+189
+Debut cross-validation
+le Roc auc est de 0.761839
+190
+Debut cross-validation
+le Roc auc est de 0.761355
+191
+Debut cross-validation
+le Roc auc est de 0.725335
+192
+Debut cross-validation
+le Roc auc est de 0.739067
+193
+Debut cross-validation
+le Roc auc est de 0.748184
+194
+Debut cross-validation
+le Roc auc est de 0.749061
+195
+Debut cross-validation
+le Roc auc est de 0.746796
+196
+Debut cross-validation
+le Roc auc est de 0.750388
+197
+Debut cross-validation
+le Roc auc est de 0.794584
+198
+Debut cross-validation
+le Roc auc est de 0.753547
+199
+Debut cross-validation
+le Roc auc est de 0.749517
+200
+Debut cross-validation
+le Roc auc est de 0.740546
+201
+Debut cross-validation
+le Roc auc est de 0.787961
+202
+Debut cross-validation
+le Roc auc est de 0.753001
+203
+Debut cross-validation
+le Roc auc est de 0.738498
+204
+Debut cross-validation
+le Roc auc est de 0.740057
+205
+Debut cross-validation
+le Roc auc est de 0.745808
+206
+Debut cross-validation
+le Roc auc est de 0.735402
+207
+Debut cross-validation
+le Roc auc est de 0.763562
+208
+Debut cross-validation
+le Roc auc est de 0.767638
+209
+Debut cross-validation
+le Roc auc est de 0.743029
+210
+Debut cross-validation
+le Roc auc est de 0.753611
+211
+Debut cross-validation
+le Roc auc est de 0.742528
+212
+Debut cross-validation
+le Roc auc est de 0.768925
+213
+Debut cross-validation
+le Roc auc est de 0.752548
+214
+Debut cross-validation
+le Roc auc est de 0.765129
+215
+Debut cross-validation
+le Roc auc est de 0.777006
+216
+Debut cross-validation
+le Roc auc est de 0.736841
+217
+Debut cross-validation
+le Roc auc est de 0.751257
+218
+Debut cross-validation
+le Roc auc est de 0.770350
+219
+Debut cross-validation
+le Roc auc est de 0.793118
+220
+Debut cross-validation
+le Roc auc est de 0.751895
+221
+Debut cross-validation
+le Roc auc est de 0.756721
+222
+Debut cross-validation
+le Roc auc est de 0.788543
+223
+Debut cross-validation
+le Roc auc est de 0.775325
+224
+Debut cross-validation
+le Roc auc est de 0.748926
+225
+Debut cross-validation
+le Roc auc est de 0.739520
+226
+Debut cross-validation
+le Roc auc est de 0.747764
+227
+Debut cross-validation
+le Roc auc est de 0.724993
+228
+Debut cross-validation
+le Roc auc est de 0.737910
+229
+Debut cross-validation
+le Roc auc est de 0.770167
+230
+Debut cross-validation
+le Roc auc est de 0.744084
+231
+Debut cross-validation
+le Roc auc est de 0.733460
+232
+Debut cross-validation
+le Roc auc est de 0.733476
+233
+Debut cross-validation
+le Roc auc est de 0.738985
+234
+Debut cross-validation
+le Roc auc est de 0.743364
+235
+Debut cross-validation
+le Roc auc est de 0.743404
+236
+Debut cross-validation
+le Roc auc est de 0.753343
+237
+Debut cross-validation
+le Roc auc est de 0.721572
+238
+Debut cross-validation
+le Roc auc est de 0.755059
+239
+Debut cross-validation
+le Roc auc est de 0.760773
+240
+Debut cross-validation
+le Roc auc est de 0.755791
+241
+Debut cross-validation
+le Roc auc est de 0.745271
+242
+Debut cross-validation
+le Roc auc est de 0.738960
+243
+Debut cross-validation
+le Roc auc est de 0.777577
+244
+Debut cross-validation
+le Roc auc est de 0.743109
+245
+Debut cross-validation
+le Roc auc est de 0.765233
+246
+Debut cross-validation
+le Roc auc est de 0.727169
+247
+Debut cross-validation
+le Roc auc est de 0.757307
+248
+Debut cross-validation
+le Roc auc est de 0.744386
+249
+Debut cross-validation
+le Roc auc est de 0.728303
+250
+Debut cross-validation
+le Roc auc est de 0.743712
+251
+Debut cross-validation
+le Roc auc est de 0.773275
+252
+Debut cross-validation
+le Roc auc est de 0.754632
+253
+Debut cross-validation
+le Roc auc est de 0.756050
+254
+Debut cross-validation
+le Roc auc est de 0.748490
+255
+Debut cross-validation
+le Roc auc est de 0.757294
+256
+Debut cross-validation
+le Roc auc est de 0.758645
+257
+Debut cross-validation
+le Roc auc est de 0.789030
+258
+Debut cross-validation
+le Roc auc est de 0.733304
+259
+Debut cross-validation
+le Roc auc est de 0.765554
+260
+Debut cross-validation
+le Roc auc est de 0.681364
+261
+Debut cross-validation
+le Roc auc est de 0.734181
+262
+Debut cross-validation
+le Roc auc est de 0.754028
+263
+Debut cross-validation
+le Roc auc est de 0.762586
+264
+Debut cross-validation
+le Roc auc est de 0.720081
+265
+Debut cross-validation
+le Roc auc est de 0.744970
+266
+Debut cross-validation
+le Roc auc est de 0.746403
+267
+Debut cross-validation
+le Roc auc est de 0.742547
+268
+Debut cross-validation
+le Roc auc est de 0.726529
+269
+Debut cross-validation
+le Roc auc est de 0.795964
+270
+Debut cross-validation
+le Roc auc est de 0.741373
+271
+Debut cross-validation
+le Roc auc est de 0.722872
+272
+Debut cross-validation
+le Roc auc est de 0.746137
+273
+Debut cross-validation
+le Roc auc est de 0.773106
+274
+Debut cross-validation
+le Roc auc est de 0.745878
+275
+Debut cross-validation
+le Roc auc est de 0.763625
+276
+Debut cross-validation
+le Roc auc est de 0.749133
+277
+Debut cross-validation
+le Roc auc est de 0.755561
+278
+Debut cross-validation
+le Roc auc est de 0.769316
+279
+Debut cross-validation
+le Roc auc est de 0.757445
+280
+Debut cross-validation
+le Roc auc est de 0.732839
+281
+Debut cross-validation
+le Roc auc est de 0.769980
+282
+Debut cross-validation
+le Roc auc est de 0.715972
+283
+Debut cross-validation
+le Roc auc est de 0.780096
+284
+Debut cross-validation
+le Roc auc est de 0.759698
+285
+Debut cross-validation
+le Roc auc est de 0.735202
+286
+Debut cross-validation
+le Roc auc est de 0.744141
+287
+Debut cross-validation
+le Roc auc est de 0.747591
+288
+Debut cross-validation
+le Roc auc est de 0.741098
+289
+Debut cross-validation
+le Roc auc est de 0.738366
+290
+Debut cross-validation
+le Roc auc est de 0.772160
+291
+Debut cross-validation
+le Roc auc est de 0.743162
+292
+Debut cross-validation
+le Roc auc est de 0.748761
+293
+Debut cross-validation
+le Roc auc est de 0.767267
+294
+Debut cross-validation
+le Roc auc est de 0.749449
+295
+Debut cross-validation
+le Roc auc est de 0.741293
+296
+Debut cross-validation
+le Roc auc est de 0.769209
+297
+Debut cross-validation
+le Roc auc est de 0.765783
+298
+Debut cross-validation
+le Roc auc est de 0.751779
+299
+Debut cross-validation
+le Roc auc est de 0.794557
+300
+Debut cross-validation
+le Roc auc est de 0.761218
+301
+Debut cross-validation
+le Roc auc est de 0.740414
+302
+Debut cross-validation
+le Roc auc est de 0.741485
+303
+Debut cross-validation
+le Roc auc est de 0.756467
+304
+Debut cross-validation
+le Roc auc est de 0.752301
+305
+Debut cross-validation
+le Roc auc est de 0.779142
+306
+Debut cross-validation
+le Roc auc est de 0.782220
+307
+Debut cross-validation
+le Roc auc est de 0.782601
+308
+Debut cross-validation
+le Roc auc est de 0.732874
+309
+Debut cross-validation
+le Roc auc est de 0.739866
+310
+Debut cross-validation
+le Roc auc est de 0.773518
+311
+Debut cross-validation
+le Roc auc est de 0.757267
+312
+Debut cross-validation
+le Roc auc est de 0.744081
+313
+Debut cross-validation
+le Roc auc est de 0.775178
+314
+Debut cross-validation
+le Roc auc est de 0.775634
+315
+Debut cross-validation
+le Roc auc est de 0.738888
+316
+Debut cross-validation
+le Roc auc est de 0.742168
+317
+Debut cross-validation
+le Roc auc est de 0.746811
+318
+Debut cross-validation
+le Roc auc est de 0.725781
+319
+Debut cross-validation
+le Roc auc est de 0.719224
+320
+Debut cross-validation
+le Roc auc est de 0.741186
+321
+Debut cross-validation
+le Roc auc est de 0.760437
+322
+Debut cross-validation
+le Roc auc est de 0.744328
+323
+Debut cross-validation
+le Roc auc est de 0.732697
+324
+Debut cross-validation
+le Roc auc est de 0.795045
+325
+Debut cross-validation
+le Roc auc est de 0.756883
+326
+Debut cross-validation
+le Roc auc est de 0.744566
+327
+Debut cross-validation
+le Roc auc est de 0.771955
+328
+Debut cross-validation
+le Roc auc est de 0.760927
+329
+Debut cross-validation
+le Roc auc est de 0.729817
+330
+Debut cross-validation
+le Roc auc est de 0.766751
+331
+Debut cross-validation
+le Roc auc est de 0.725085
+332
+Debut cross-validation
+le Roc auc est de 0.773787
+333
+Debut cross-validation
+le Roc auc est de 0.754191
+334
+Debut cross-validation
+le Roc auc est de 0.727895
+335
+Debut cross-validation
+le Roc auc est de 0.772359
+336
+Debut cross-validation
+le Roc auc est de 0.747491
+337
+Debut cross-validation
+le Roc auc est de 0.743277
+338
+Debut cross-validation
+le Roc auc est de 0.769296
+339
+Debut cross-validation
+le Roc auc est de 0.726471
+340
+Debut cross-validation
+le Roc auc est de 0.719293
+341
+Debut cross-validation
+le Roc auc est de 0.779665
+342
+Debut cross-validation
+le Roc auc est de 0.748889
+343
+Debut cross-validation
+le Roc auc est de 0.729706
+344
+Debut cross-validation
+le Roc auc est de 0.756920
+345
+Debut cross-validation
+le Roc auc est de 0.729308
+346
+Debut cross-validation
+le Roc auc est de 0.736677
+347
+Debut cross-validation
+le Roc auc est de 0.783640
+348
+Debut cross-validation
+le Roc auc est de 0.753283
+349
+Debut cross-validation
+le Roc auc est de 0.755964
+350
+Debut cross-validation
+le Roc auc est de 0.776987
+351
+Debut cross-validation
+le Roc auc est de 0.744225
+352
+Debut cross-validation
+le Roc auc est de 0.758854
+353
+Debut cross-validation
+le Roc auc est de 0.743642
+354
+Debut cross-validation
+le Roc auc est de 0.782903
+355
+Debut cross-validation
+le Roc auc est de 0.745990
+356
+Debut cross-validation
+le Roc auc est de 0.738953
+357
+Debut cross-validation
+le Roc auc est de 0.767920
+358
+Debut cross-validation
+le Roc auc est de 0.729044
+359
+Debut cross-validation
+le Roc auc est de 0.735732
+360
+Debut cross-validation
+le Roc auc est de 0.758114
+361
+Debut cross-validation
+le Roc auc est de 0.764392
+362
+Debut cross-validation
+le Roc auc est de 0.777640
+363
+Debut cross-validation
+le Roc auc est de 0.745242
+364
+Debut cross-validation
+le Roc auc est de 0.765677
+365
+Debut cross-validation
+le Roc auc est de 0.734841
+366
+Debut cross-validation
+le Roc auc est de 0.771260
+367
+Debut cross-validation
+le Roc auc est de 0.746959
+368
+Debut cross-validation
+le Roc auc est de 0.754975
+369
+Debut cross-validation
+le Roc auc est de 0.765133
+370
+Debut cross-validation
+le Roc auc est de 0.745412
+371
+Debut cross-validation
+le Roc auc est de 0.7
