@@ -29,7 +29,7 @@ import pickle
 # Which platform
 
 Iteration = 1e6
-platform = 'laptop'
+platform = 'clavius'
 
 if platform == 'clavius':
     racine = '/Users/clement/Classification/'
