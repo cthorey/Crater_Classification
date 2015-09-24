@@ -2,6 +2,7 @@ import os
 import pandas as pd
 from sklearn.cross_validation import train_test_split
 from sklearn.base import BaseEstimator, TransformerMixin
+from random import randrange
 
 from sklearn.linear_model import LogisticRegression
 from numpy.random import uniform
@@ -272,7 +273,7 @@ while compteur < Iteration:
     print compteur
     C = 10**(uniform(-6,-2))
     p = uniform(3,6)
-    npca = randint(30)
+    npca = randrange(5, 30)
     
     which_feature = {k:int(proba.random()) for k in Feature.transformer_weights.keys()}
     which_feature['HOGFeature'] = 1
@@ -305,7 +306,7 @@ while compteur < Iteration:
     rocval = np.array(rocaucval).mean()
     print 'le Roc auc est de %f'%(rocval)
 
-    if rocval>= 0.8:
+    if rocval >= 0.75:
         X_train = Feature.fit_transform(X_trainDF)
         y_train = np.array(y_trainDF)[:,np.newaxis]
         model.fit(X_train,y_train.ravel())
